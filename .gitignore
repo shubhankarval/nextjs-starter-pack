@@ -1,0 +1,38 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Output of `npm pack`
+*.tgz
+
+# macOS & Windows noise
+.DS_Store
+Thumbs.db
+
+# Test coverage (if using tools like nyc, jest, vitest, etc.)
+coverage/
+
+# Logs
+logs/
+*.log
+
+# Env files
+.env
+.env.*
+
+# IDEs/editors
+.vscode/
+.idea/
+*.swp
+
+# TypeScript cache
+dist/
+tsconfig.tsbuildinfo
+
+# Lockfiles
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

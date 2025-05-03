@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --color-background: #f1f1f1;
+  --color-foreground: #171717;
+  --color-muted-foreground: #74757a;
+  --color-border: #dcdcdc;
+}
+
+@layer theme {
+  [data-theme='dark'] {
+    --color-background: #0a0a0a;
+    --color-foreground: #fafafa;
+    --color-muted-foreground: #a6a6b4;
+    --color-border: #292929;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
