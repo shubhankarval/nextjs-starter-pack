@@ -31,8 +31,3 @@ logs/
 # TypeScript cache
 dist/
 tsconfig.tsbuildinfo
-
-# Lockfiles
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
