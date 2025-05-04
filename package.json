@@ -1,31 +1,38 @@
 {
   "name": "nextjs-starter-pack",
   "version": "0.1.0",
+  "description": "Create a production-ready Next.js app with a single command.",
   "keywords": [
     "react",
     "next",
-    "next.js"
+    "next.js",
+    "starter",
+    "boilerplate",
+    "template",
+    "cli"
   ],
-  "description": "Create a production-ready Next.js app with a single command.",
   "repository": {
     "type": "git",
     "url": "https://github.com/shubhankarval/nextjs-starter-pack.git"
   },
+  "author": "Shubhankar Valimbe",
+  "license": "MIT",
+  "type": "module",
   "bin": {
     "nextjs-starter-pack": "./bin/cli.js"
   },
-  "type": "module",
   "files": [
     "bin",
     "template",
     "index.js"
   ],
-  "author": "Shubhankar Valimbe",
-  "license": "MIT",
   "dependencies": {
     "commander": "^13.1.0",
     "fs-extra": "^11.3.0",
     "inquirer": "^12.6.0",
     "nanoid": "^5.1.5"
+  },
+  "engines": {
+    "node": ">=18.18.0"
   }
 }
