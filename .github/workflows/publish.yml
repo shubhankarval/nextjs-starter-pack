@@ -38,7 +38,7 @@ jobs:
             chmod +x bin/cli.js
             
             # Check if the CLI loads without errors
-            if node -e "try { require('./bin/cli.js'); console.log('CLI loads correctly'); process.exit(0); } catch(e) { console.error(e); process.exit(1); }"; then
+            if node -e "import('./bin/cli.js').then(() => { console.log('CLI loads correctly'); process.exit(0); }).catch(e => { console.error(e); process.exit(1); })"; then
               echo "✅ CLI validation passed"
             else
               echo "❌ CLI validation failed"
