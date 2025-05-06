@@ -27,10 +27,14 @@
     "index.js"
   ],
   "dependencies": {
+    "chalk": "^5.4.1",
     "commander": "^13.1.0",
+    "figlet": "^1.8.1",
     "fs-extra": "^11.3.0",
+    "gradient-string": "^3.0.0",
     "inquirer": "^12.6.0",
-    "nanoid": "^5.1.5"
+    "nanoid": "^5.1.5",
+    "ora": "^8.2.0"
   },
   "engines": {
     "node": ">=18.18.0"
