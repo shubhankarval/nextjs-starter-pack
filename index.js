@@ -139,7 +139,7 @@ export const createApp = async () => {
 
     // Create spinner for file operations
     const spinner = ora({
-      text: chalk.cyan("Creating your project..."),
+      text: chalk.cyan("Creating your project...."),
       color: "cyan",
     }).start();
 
