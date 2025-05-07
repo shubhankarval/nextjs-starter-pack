@@ -11,14 +11,37 @@ import figlet from "figlet";
 import chalk from "chalk";
 import { mind } from "gradient-string";
 
+// Define interfaces for options and prompts
+interface Options {
+  darkMode?: boolean;
+  form?: "rhf" | "rhf-zod" | "none";
+  tanstackQuery?: boolean;
+  state?: "zustand" | "jotai" | "none";
+  skipInstall?: boolean;
+}
+
+interface Prompts extends Options {
+  projectName?: string;
+}
+
+interface PackageJson {
+  name: string;
+  dependencies: Record<string, string>;
+}
+
+interface FileMapping {
+  src: string;
+  dest: string;
+}
+
 // Needed to resolve __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const mainDir = path.join(__dirname, "./template/main");
-const optionalDir = path.join(__dirname, "./template/optional");
+const mainDir = path.join(__dirname, "../template/main");
+const optionalDir = path.join(__dirname, "../template/optional");
 
-export const createApp = async () => {
+export const createApp = async (): Promise<void> => {
   console.log(
     mind(
       figlet.textSync("nextjs-starter-pack", {
@@ -50,7 +73,7 @@ export const createApp = async () => {
     .parse(process.argv);
 
   let projectName = program.args[0]?.trim();
-  const options = program.opts();
+  const options = program.opts() as Options;
 
   try {
     // Validate list options
@@ -64,21 +87,21 @@ export const createApp = async () => {
     }
 
     const packageJsonPath = path.join(mainDir, "package.json");
-    const pkg = await fs.readJson(packageJsonPath);
+    const pkg = (await fs.readJson(packageJsonPath)) as PackageJson;
 
     // Project name
     if (!projectName) {
-      const answers = await inquirer.prompt([
+      const answers = await inquirer.prompt<Prompts>([
         {
           type: "input",
           name: "projectName",
           message: "What is your project name?",
           default: "my-app",
-          validate: (input) =>
+          validate: (input: string) =>
             input.trim() !== "" ? true : "Project name cannot be empty.",
         },
       ]);
-      projectName = answers.projectName.trim();
+      projectName = answers.projectName?.trim() || "my-app";
     }
     pkg.name = projectName;
 
@@ -87,7 +110,7 @@ export const createApp = async () => {
       throw new Error(`A folder named "${projectName}" already exists.`);
     }
 
-    const prompts = await inquirer.prompt([
+    const prompts = await inquirer.prompt<Prompts>([
       {
         type: "confirm",
         name: "darkMode",
@@ -97,7 +120,7 @@ export const createApp = async () => {
       },
       {
         type: "list",
-        name: "formValidator",
+        name: "form",
         message: "Do you want to have form validation?",
         choices: [
           { name: "React Hook Form", value: "rhf" },
@@ -116,7 +139,7 @@ export const createApp = async () => {
       },
       {
         type: "list",
-        name: "stateLibrary",
+        name: "state",
         message: "Do you want to use a state manager?",
         choices: [
           {
@@ -135,6 +158,13 @@ export const createApp = async () => {
         default: "zustand",
         when: () => !options.state,
       },
+      {
+        type: "confirm",
+        name: "skipInstall",
+        message: "Do you want to skip installing dependencies?",
+        default: false,
+        when: () => !options.skipInstall,
+      },
     ]);
 
     // Create spinner for file operations
@@ -148,7 +178,7 @@ export const createApp = async () => {
       pkg.dependencies["next-themes"] = "^0.4.6";
     }
 
-    const formValidator = options.form || prompts.formValidator;
+    const formValidator = options.form || prompts.form;
     if (formValidator === "rhf") {
       pkg.dependencies["react-hook-form"] = "^7.56.1";
     } else if (formValidator === "rhf-zod") {
@@ -163,7 +193,7 @@ export const createApp = async () => {
       pkg.dependencies["@tanstack/react-query-devtools"] = "^5.74.6";
     }
 
-    const stateLibrary = options.state || prompts.stateLibrary;
+    const stateLibrary = options.state || prompts.state;
     if (stateLibrary === "zustand") {
       pkg.dependencies["zustand"] = "^5.0.3";
     } else if (stateLibrary === "jotai") {
@@ -181,7 +211,7 @@ export const createApp = async () => {
     if (darkMode) {
       const darkModeDir = path.join(optionalDir, "dark-mode");
 
-      const fileMap = [
+      const fileMap: FileMapping[] = [
         {
           src: path.join(darkModeDir, "layout.tsx"),
           dest: path.join(tempDir, "src/app/layout.tsx"),
@@ -228,18 +258,19 @@ export const createApp = async () => {
       chalk.green(`Project ${chalk.bold(projectName)} created successfully!`)
     );
 
-    if (!options.skipInstall) {
+    const skipInstall = options.skipInstall || prompts.skipInstall;
+    if (!skipInstall) {
       console.log("");
       const installSpinner = ora({
         text: chalk.cyan(
-          "📦Installing dependencies (this may take up to a minute)...\n"
+          "📦 Installing dependencies (this may take up to a minute)...\n"
         ),
         color: "cyan",
       }).start();
 
       try {
         // Detect package manager (prefer user's default)
-        let packageManager = "npm";
+        let packageManager: "npm" | "yarn" | "pnpm" = "npm";
         try {
           // Check if yarn is installed
           execSync("yarn --version", { stdio: "ignore" });
@@ -280,7 +311,7 @@ export const createApp = async () => {
     // Final success message with colorful instructions
     console.log("\n" + chalk.bgCyan.black(" NEXT STEPS ") + "\n");
     console.log(`  ${chalk.cyan("1.")} ${chalk.bold(`cd ${projectName}`)}`);
-    if (options.skipInstall) {
+    if (skipInstall) {
       console.log(
         `  ${chalk.cyan("2.")} ${chalk.bold("npm install")} (or use yarn/pnpm)`
       );
@@ -289,7 +320,7 @@ export const createApp = async () => {
       console.log(`  ${chalk.cyan("2.")} ${chalk.bold("npm run dev")}`);
     }
     console.log("\n" + chalk.green("Happy coding!🚀") + "\n");
-  } catch (err) {
+  } catch (err: any) {
     // Clean up
     await fs.remove(tempDir);
 

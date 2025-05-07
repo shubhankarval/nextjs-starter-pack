@@ -19,13 +19,17 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "nextjs-starter-pack": "./bin/cli.js"
+    "nextjs-starter-pack": "./dist/cli.js"
   },
   "files": [
-    "bin",
-    "template",
-    "index.js"
+    "dist",
+    "template"
   ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "dev": "tsc --watch"
+  },
   "dependencies": {
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
@@ -35,6 +39,12 @@
     "inquirer": "^12.6.0",
     "nanoid": "^5.1.5",
     "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.7.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.15.14",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=18.18.0"

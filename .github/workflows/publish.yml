@@ -5,9 +5,9 @@ on:
     branches:
       - main
     paths:
-      - "index.js"
-      - "bin/**"
+      - "src/**"
       - "template/**"
+      - "tsconfig.json"
       - "package.json"
       - "README.md"
 
@@ -36,15 +36,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build project
+        run: npm run build
+
       - name: Run tests
         run: |
           # Basic validation test to ensure CLI can be run
-          if [ -f "bin/cli.js" ]; then
+          if [ -f "dist/cli.js" ]; then
             echo "Verifying CLI script is executable"
-            chmod +x bin/cli.js
+            chmod +x dist/cli.js
             
             # Check if the CLI loads without errors
-            if node -e "import('./bin/cli.js').then(() => { console.log('CLI loads correctly'); process.exit(0); }).catch(e => { console.error(e); process.exit(1); })"; then
+            if node -e "import('./dist/cli.js').then(() => { console.log('CLI loads correctly'); process.exit(0); }).catch(e => { console.error(e); process.exit(1); })"; then
               echo "✅ CLI validation passed"
             else
               echo "❌ CLI validation failed"
@@ -64,18 +67,18 @@ jobs:
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
-          if echo "$CHANGED_FILES" | grep -q "^index.js$"; then
-            echo "index.js was modified - version update required"
-            REQUIRE_VERSION_UPDATE=true
-          fi
-
-          if echo "$CHANGED_FILES" | grep -q "^bin/"; then
-            echo "Files in bin/ directory were modified - version update required"
+          if echo "$CHANGED_FILES" | grep -q "^src/"; then
+            echo "Files in src/ directory were modified - version update required"
             REQUIRE_VERSION_UPDATE=true
           fi
 
           if echo "$CHANGED_FILES" | grep -q "^template/"; then
             echo "Files in template/ directory were modified - version update required"
+            REQUIRE_VERSION_UPDATE=true
+          fi
+
+          if echo "$CHANGED_FILES" | grep -q "^tsconfig.json$"; then
+            echo "tsconfig.json was modified - version update required"
             REQUIRE_VERSION_UPDATE=true
           fi
 
