@@ -1,7 +1,6 @@
 import { fileURLToPath } from "url";
 import path from "path";
 import os from "os";
-import { execSync } from "child_process";
 import fs from "fs-extra";
 import inquirer from "inquirer";
 import { Command } from "commander";
@@ -11,14 +10,11 @@ import figlet from "figlet";
 import chalk from "chalk";
 import { mind } from "gradient-string";
 
-// Define interfaces for options and prompts
-interface Options {
-  darkMode?: boolean;
-  form?: "rhf" | "rhf-zod" | "none";
-  tanstackQuery?: boolean;
-  state?: "zustand" | "jotai" | "none";
-  skipInstall?: boolean;
-}
+import type { Options } from "./types.js";
+import { addFiles } from "./helpers/addFiles.js";
+import { modifyFiles } from "./helpers/modifyFiles.js";
+import { installDependencies } from "./helpers/install.js";
+import { getPackageManager } from "./helpers/utils.js";
 
 interface Prompts extends Options {
   projectName?: string;
@@ -27,11 +23,8 @@ interface Prompts extends Options {
 interface PackageJson {
   name: string;
   dependencies: Record<string, string>;
-}
-
-interface FileMapping {
-  src: string;
-  dest: string;
+  devDependencies: Record<string, string>;
+  prisma?: Record<string, string>;
 }
 
 // Needed to resolve __dirname in ESM
@@ -40,8 +33,25 @@ const __dirname = path.dirname(__filename);
 
 const mainDir = path.join(__dirname, "../template/main");
 const optionalDir = path.join(__dirname, "../template/optional");
+const tempDir = path.join(os.tmpdir(), `temp-${nanoid()}`);
+
+const program = new Command();
+program
+  .name("nextjs-starter-pack")
+  .argument("[projectName]", "Name of the project")
+  .description("Create a Next.js app with a starter pack")
+  .option("--dark-mode", "Include dark mode")
+  .option("--rhf", "Include React Hook Form with Zod")
+  .option("--tanstack-query", "Include TanStack Query")
+  .option(
+    "--state <library>",
+    "Choose state management library (zustand, jotai, none)"
+  )
+  .option("--prisma", "Include Prisma ORM")
+  .parse(process.argv);
 
 export const createApp = async (): Promise<void> => {
+  // Display banner
   console.log(
     mind(
       figlet.textSync("nextjs-starter-pack", {
@@ -55,32 +65,11 @@ export const createApp = async (): Promise<void> => {
   );
   console.log("\n");
 
-  const tempDir = path.join(os.tmpdir(), `temp-${nanoid()}`);
-
-  const program = new Command();
-  program
-    .name("nextjs-starter-pack")
-    .argument("[projectName]", "Name of the project")
-    .description("Create a Next.js app with a starter pack")
-    .option("--dark-mode", "Include dark mode")
-    .option("--form <validator>", "Choose form validator (rhf, rhf-zod, none)")
-    .option("--tanstack-query", "Include TanStack Query")
-    .option(
-      "--state <library>",
-      "Choose state management library (zustand, jotai, none)"
-    )
-    .option("--skip-install", "Skip installing dependencies")
-    .parse(process.argv);
-
   let projectName = program.args[0]?.trim();
   const options = program.opts() as Options;
 
   try {
     // Validate list options
-    const validForms = ["rhf", "rhf-zod", "none"];
-    if (options.form && !validForms.includes(options.form)) {
-      throw new Error(`Invalid form validator: ${options.form}`);
-    }
     const validStates = ["zustand", "jotai", "none"];
     if (options.state && !validStates.includes(options.state)) {
       throw new Error(`Invalid state management library: ${options.state}`);
@@ -119,16 +108,12 @@ export const createApp = async (): Promise<void> => {
         when: () => !options.darkMode,
       },
       {
-        type: "list",
-        name: "form",
-        message: "Do you want to have form validation?",
-        choices: [
-          { name: "React Hook Form", value: "rhf" },
-          { name: "React Hook Form + Zod", value: "rhf-zod" },
-          { name: "None", value: "none" },
-        ],
-        default: "rhf-zod",
-        when: () => !options.form,
+        type: "confirm",
+        name: "rhf",
+        message:
+          "Do you want to have form validation with React Hook Form and Zod?",
+        default: true,
+        when: () => !options.rhf,
       },
       {
         type: "confirm",
@@ -160,14 +145,14 @@ export const createApp = async (): Promise<void> => {
       },
       {
         type: "confirm",
-        name: "skipInstall",
-        message: "Do you want to skip installing dependencies?",
-        default: false,
-        when: () => !options.skipInstall,
+        name: "prisma",
+        message: "Do you want to include Prisma ORM?",
+        default: true,
+        when: () => !options.prisma,
       },
     ]);
 
-    // Create spinner for file operations
+    // spinner for file operations
     const spinner = ora({
       text: chalk.cyan("Creating your project..."),
       color: "cyan",
@@ -178,13 +163,12 @@ export const createApp = async (): Promise<void> => {
       pkg.dependencies["next-themes"] = "^0.4.6";
     }
 
-    const formValidator = options.form || prompts.form;
-    if (formValidator === "rhf") {
-      pkg.dependencies["react-hook-form"] = "^7.56.1";
-    } else if (formValidator === "rhf-zod") {
-      pkg.dependencies["react-hook-form"] = "^7.56.1";
+    const rhf = options.rhf || prompts.rhf;
+    if (rhf) {
+      pkg.dependencies["react-hook-form"] = "^7.56.4";
       pkg.dependencies["@hookform/resolvers"] = "^5.0.1";
-      pkg.dependencies["zod"] = "^3.24.3";
+      pkg.dependencies["zod"] = "^3.24.4";
+      pkg.dependencies["@radix-ui/react-label"] = "^2.1.6";
     }
 
     const tanstackQuery = options.tanstackQuery || prompts.tanstackQuery;
@@ -193,63 +177,45 @@ export const createApp = async (): Promise<void> => {
       pkg.dependencies["@tanstack/react-query-devtools"] = "^5.74.6";
     }
 
-    const stateLibrary = options.state || prompts.state;
-    if (stateLibrary === "zustand") {
+    const state = options.state || prompts.state;
+    if (state === "zustand") {
       pkg.dependencies["zustand"] = "^5.0.3";
-    } else if (stateLibrary === "jotai") {
+    } else if (state === "jotai") {
       pkg.dependencies["jotai"] = "^2.12.3";
+    }
+
+    const prisma = options.prisma || prompts.prisma;
+    if (prisma) {
+      pkg.dependencies["@prisma/client"] = "^6.7.0";
+      pkg.devDependencies["prisma"] = "^6.7.0";
+      pkg.devDependencies["tsx"] = "^4.19.4";
+      pkg.prisma = {};
+      pkg.prisma.seed = "tsx prisma/seed.ts";
     }
 
     // Copy from main to temp directory
     await fs.copy(mainDir, tempDir);
 
-    // Copy optional files/dependencies based on user input
+    // Add dependencies based on user input
     await fs.writeJson(path.join(tempDir, "package.json"), pkg, {
       spaces: 2,
     });
 
-    if (darkMode) {
-      const darkModeDir = path.join(optionalDir, "dark-mode");
+    // Add/overwrite/modify files based on user input
+    const props = {
+      darkMode,
+      rhf,
+      tanstackQuery,
+      state,
+      prisma,
+      optionalDir,
+      tempDir,
+    };
+    await addFiles(props);
+    await modifyFiles(props);
 
-      const fileMap: FileMapping[] = [
-        {
-          src: path.join(darkModeDir, "layout.tsx"),
-          dest: path.join(tempDir, "src/app/layout.tsx"),
-        },
-        {
-          src: path.join(darkModeDir, "page.tsx"),
-          dest: path.join(tempDir, "src/app/page.tsx"),
-        },
-        {
-          src: path.join(darkModeDir, "globals.css"),
-          dest: path.join(tempDir, "src/app/globals.css"),
-        },
-        {
-          src: path.join(darkModeDir, "providers.tsx"),
-          dest: path.join(tempDir, "src/app/providers.tsx"),
-        },
-        {
-          src: path.join(darkModeDir, "ThemeSwitch.tsx"),
-          dest: path.join(
-            tempDir,
-            "src/components/ThemeSwitch/ThemeSwitch.tsx"
-          ),
-        },
-      ];
-
-      // Ensure directories exist first (in parallel)
-      await Promise.all(
-        fileMap.map(({ dest }) => fs.ensureDir(path.dirname(dest)))
-      );
-
-      // Now copy dark mode files in parallel
-      await Promise.all(
-        fileMap.map(({ src, dest }) => fs.copy(src, dest, { overwrite: true }))
-      );
-    }
-
-    // Copy from temp to destination directory
-    await fs.copy(tempDir, destDir, { overwrite: false });
+    // Move files from temp to destination directory
+    await fs.move(tempDir, destDir);
 
     // Clean up
     await fs.remove(tempDir);
@@ -258,67 +224,17 @@ export const createApp = async (): Promise<void> => {
       chalk.green(`Project ${chalk.bold(projectName)} created successfully!`)
     );
 
-    const skipInstall = options.skipInstall || prompts.skipInstall;
-    if (!skipInstall) {
-      console.log("");
-      const installSpinner = ora({
-        text: chalk.cyan(
-          "📦 Installing dependencies (this may take up to a minute)...\n"
-        ),
-        color: "cyan",
-      }).start();
+    // Setup dependencies and format files
+    const packageManager = getPackageManager();
+    installDependencies(destDir, packageManager);
 
-      try {
-        // Detect package manager (prefer user's default)
-        let packageManager: "npm" | "yarn" | "pnpm" = "npm";
-        try {
-          // Check if yarn is installed
-          execSync("yarn --version", { stdio: "ignore" });
-          packageManager = "yarn";
-        } catch (e) {
-          // Check if pnpm is installed
-          try {
-            execSync("pnpm --version", { stdio: "ignore" });
-            packageManager = "pnpm";
-          } catch (e) {
-            // Fallback to npm
-          }
-        }
-
-        // Install dependencies
-        process.chdir(destDir);
-        if (packageManager === "yarn") {
-          execSync("yarn", { stdio: "ignore" });
-        } else if (packageManager === "pnpm") {
-          execSync("pnpm install", { stdio: "ignore" });
-        } else {
-          execSync("npm install", { stdio: "ignore" });
-        }
-
-        installSpinner.succeed(
-          chalk.green(`Dependencies installed with ${packageManager}!`)
-        );
-      } catch (err) {
-        installSpinner.fail(chalk.red("Failed to install dependencies."));
-        console.log(
-          chalk.yellow(
-            `Please run 'npm install' inside the project directory manually.`
-          )
-        );
-      }
-    }
-
-    // Final success message with colorful instructions
+    // Final success message
     console.log("\n" + chalk.bgCyan.black(" NEXT STEPS ") + "\n");
     console.log(`  ${chalk.cyan("1.")} ${chalk.bold(`cd ${projectName}`)}`);
-    if (skipInstall) {
-      console.log(
-        `  ${chalk.cyan("2.")} ${chalk.bold("npm install")} (or use yarn/pnpm)`
-      );
-      console.log(`  ${chalk.cyan("3.")} ${chalk.bold("npm run dev")}`);
-    } else {
-      console.log(`  ${chalk.cyan("2.")} ${chalk.bold("npm run dev")}`);
-    }
+    console.log(
+      `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} run dev`)}`
+    );
+
     console.log("\n" + chalk.green("Happy coding!🚀") + "\n");
   } catch (err: any) {
     // Clean up
