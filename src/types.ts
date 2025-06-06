@@ -6,6 +6,11 @@ export interface Options {
   prisma?: boolean;
 }
 
+export interface FileProps extends Options {
+  optionalDir: string;
+  tempDir: string;
+}
+
 export interface FileMapping {
   src: string;
   dest: string;

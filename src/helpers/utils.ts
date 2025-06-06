@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import fs from "fs-extra";
 
 type PackageManager = "npm" | "yarn" | "pnpm";
 
@@ -18,4 +19,18 @@ export const getPackageManager = (): PackageManager => {
     }
   }
   return packageManager;
+};
+
+export const replacePlaceholdersInFile = async (
+  filePath: string,
+  replacements: Record<string, string>
+) => {
+  let content = await fs.readFile(filePath, "utf8");
+
+  for (const [placeholder, value] of Object.entries(replacements)) {
+    const regex = new RegExp(`{{${placeholder}}}`, "g");
+    content = content.replace(regex, value);
+  }
+
+  await fs.writeFile(filePath, content, "utf8");
 };

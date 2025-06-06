@@ -1,11 +1,6 @@
 import path from "path";
 import fs from "fs-extra";
-import type { Options, FileMapping } from "../types.js";
-
-interface AddFilesProps extends Options {
-  optionalDir: string;
-  tempDir: string;
-}
+import type { FileProps, FileMapping } from "../types.js";
 
 export async function addFiles({
   darkMode,
@@ -15,7 +10,7 @@ export async function addFiles({
   prisma,
   optionalDir,
   tempDir,
-}: AddFilesProps) {
+}: FileProps) {
   const fileMap: FileMapping[] = [];
   const commonDir = path.join(optionalDir, "common");
 
@@ -123,7 +118,7 @@ export async function addFiles({
     await fs.remove(path.join(tempDir, "src/types.ts"));
   }
 
-  // Now copy files in parallel
+  // copy files in parallel
   await Promise.all(
     fileMap.map(({ src, dest }) => fs.copy(src, dest, { overwrite: true }))
   );

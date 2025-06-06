@@ -1,25 +1,25 @@
 import path from "path";
 import fs from "fs-extra";
-import type { Options, FileMapping } from "../types.js";
 
-interface ModifyFileProps extends Options {
-  optionalDir: string;
-  tempDir: string;
-}
+import type { FileProps, FileMapping } from "../../types.js";
+import { replacePlaceholdersInFile } from "../utils.js";
 
-export async function modifyFiles({
+type ProvidersProps = Pick<
+  FileProps,
+  "darkMode" | "tanstackQuery" | "state" | "optionalDir" | "tempDir"
+>;
+
+export const modifyProviders = async ({
   darkMode,
-  rhf,
   tanstackQuery,
   state,
-  prisma,
   optionalDir,
   tempDir,
-}: ModifyFileProps) {
-  const isStateLibrary = state === "zustand" || state === "jotai";
-
+}: ProvidersProps) => {
   //layout.tsx & providers.tsx
+
   const providersPath = path.join(tempDir, "src/app/providers.tsx");
+  const isStateLibrary = state && state !== "none";
 
   if (isStateLibrary && !darkMode && !tanstackQuery) {
     const fileMap: FileMapping = {
@@ -65,25 +65,11 @@ export async function modifyFiles({
     }
 
     const replacements = {
-      IMPORTS: imports.join(""),
+      IMPORTS: imports.join("\n"),
       QUERY_CLIENT: queryClientInit,
-      PROVIDERS: [...providersOpen, "{children}", ...providersClose].join(""),
+      PROVIDERS: [...providersOpen, "{children}", ...providersClose].join("\n"),
     };
 
     await replacePlaceholdersInFile(providersPath, replacements);
   }
-}
-
-const replacePlaceholdersInFile = async (
-  filePath: string,
-  replacements: Record<string, string>
-) => {
-  let content = await fs.readFile(filePath, "utf8");
-
-  for (const [placeholder, value] of Object.entries(replacements)) {
-    const regex = new RegExp(`{{${placeholder}}}`, "g");
-    content = content.replace(regex, value);
-  }
-
-  await fs.writeFile(filePath, content, "utf8");
 };

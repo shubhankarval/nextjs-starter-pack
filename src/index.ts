@@ -12,7 +12,7 @@ import { mind } from "gradient-string";
 
 import type { Options } from "./types.js";
 import { addFiles } from "./helpers/addFiles.js";
-import { modifyFiles } from "./helpers/modifyFiles.js";
+import { modifyFiles } from "./helpers/modifyFiles/modifyFiles.js";
 import { installDependencies } from "./helpers/install.js";
 import { getPackageManager } from "./helpers/utils.js";
 
