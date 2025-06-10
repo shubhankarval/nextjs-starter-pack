@@ -39,14 +39,10 @@ export const modifyProviders = async ({
     if (tanstackQuery) {
       imports.push(
         'import { QueryClientProvider } from "@tanstack/react-query";',
-        'import { ReactQueryDevtools } from "@tanstack/react-query-devtools";',
         'import { getQueryClient } from "@lib/get-query-client";'
       );
       providersOpen.push("<QueryClientProvider client={queryClient}>");
-      providersClose.unshift(
-        "<ReactQueryDevtools initialIsOpen={false} />",
-        "</QueryClientProvider>"
-      );
+      providersClose.unshift("</QueryClientProvider>");
       queryClientInit = "const queryClient = getQueryClient();";
     }
 

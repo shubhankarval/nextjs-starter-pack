@@ -174,7 +174,6 @@ export const createApp = async (): Promise<void> => {
     const tanstackQuery = options.tanstackQuery || prompts.tanstackQuery;
     if (tanstackQuery) {
       pkg.dependencies["@tanstack/react-query"] = "^5.74.4";
-      pkg.dependencies["@tanstack/react-query-devtools"] = "^5.74.6";
     }
 
     const state = options.state || prompts.state;

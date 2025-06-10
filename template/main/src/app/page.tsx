@@ -1,15 +1,20 @@
 'use client';
+{{TOP_IMPORTS}}
 import Link from 'next/link';
 import { Github, Package, Plus } from 'lucide-react';
 
-import { useTaskContext } from '@context/task-context';
+{{BOTTOM_IMPORTS}}
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { Greeting } from '@components/greeting';
 import { Tasks } from '@components/tasks';
 
+{{FORM_SCHEMA}}
+
 export default function Home() {
-  const { addTask, newTask, setNewTask, filter, setFilter } = useTaskContext();
+  {{STATE_LOGIC}}
+
+  {{FORM_LOGIC}}
 
   return (
     <div className="min-h-screen overflow-hidden font-sans">
@@ -40,26 +45,13 @@ export default function Home() {
       {/* Main content */}
       <main className="mb-5 flex items-center justify-center transition-colors duration-300 lg:mt-5">
         <div className="mx-auto flex w-full max-w-md flex-col p-6">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-center gap-2">
+            {{THEME_SWITCH}}
             <Greeting />
           </div>
 
-          <div className="mb-6 flex space-x-2">
-            <Input
-              type="text"
-              placeholder="Add a new task..."
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') addTask();
-              }}
-              className="flex-1"
-            />
-            <Button size="icon" aria-label="Add task" onClick={addTask}>
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-
+          {{FORM}}
+          
           <div className="mb-4 flex space-x-2">
             <Button
               variant={filter === 'all' ? 'default' : 'outline'}

@@ -43,7 +43,7 @@ export const modifyTasksComponent = async ({
   const replacements = {
     IMPORT: importStmt,
     JOTAI_IMPORT: jotaiImport,
-    TASK_STATE: taskState.join("\n"),
+    TASK_STATE: taskState.join("\n\t"),
   };
 
   await replacePlaceholdersInFile(tasksPath, replacements);

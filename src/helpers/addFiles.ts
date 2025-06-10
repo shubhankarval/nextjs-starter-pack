@@ -42,6 +42,13 @@ export async function addFiles({
         dest: path.join(tempDir, "src/components/ui/label.tsx"),
       }
     );
+
+    if (!state || state === "none") {
+      fileMap.push({
+        src: path.join(rhfDir, "task-context-rhf.tsx"),
+        dest: path.join(tempDir, "src/context/task-context.tsx"),
+      });
+    }
   }
 
   if (tanstackQuery) {
@@ -59,29 +66,31 @@ export async function addFiles({
     );
   }
 
-  if (state === "zustand") {
-    const zustandDir = path.join(optionalDir, "zustand");
-
-    fileMap.push({
-      src: path.join(zustandDir, "task-store.ts"),
-      dest: path.join(tempDir, "src/store/task-store.ts"),
-    });
-  } else if (state === "jotai") {
-    const jotaiDir = path.join(optionalDir, "jotai");
-
-    fileMap.push({
-      src: path.join(jotaiDir, "task-atoms.ts"),
-      dest: path.join(tempDir, "src/store/task-atoms.ts"),
-    });
-  }
-
-  if (state === "zustand" || state === "jotai") {
+  if (state && state !== "none") {
     fileMap.push({
       src: path.join(commonDir, "tsconfig.json"),
       dest: path.join(tempDir, "tsconfig.json"),
     });
     await fs.ensureDir(path.join(tempDir, "src/store"));
     await fs.remove(path.join(tempDir, "src/context"));
+
+    if (state === "zustand") {
+      const zustandDir = path.join(optionalDir, "zustand");
+      const zustandFile = rhf ? "task-store-rhf.ts" : "task-store.ts";
+
+      fileMap.push({
+        src: path.join(zustandDir, zustandFile),
+        dest: path.join(tempDir, "src/store/task-store.ts"),
+      });
+    } else if (state === "jotai") {
+      const jotaiDir = path.join(optionalDir, "jotai");
+      const jotaiFile = rhf ? "task-atoms-rhf.ts" : "task-atoms.ts";
+
+      fileMap.push({
+        src: path.join(jotaiDir, jotaiFile),
+        dest: path.join(tempDir, "src/store/task-atoms.ts"),
+      });
+    }
   }
 
   if (prisma) {
