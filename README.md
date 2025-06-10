@@ -27,6 +27,7 @@ Create a powerful Next.js application with zero configuration. This starter pack
 - 📊 **Data Fetching** - TanStack Query for efficient data management
 - 📋 **Form Handling** - React Hook Form with optional Zod validation
 - 🔄 **State Management** - Options for Zustand or Jotai
+- 📁 **Prisma** - Manage database using Prisma ORM
 - 🛠️ **Development Tools** - ESLint and Prettier configurations
 - 📦 **Import Aliases** - For cleaner imports
 - 🔍 **Icons** - Lucide React for beautiful, customizable icons
@@ -42,23 +43,24 @@ npx nextjs-starter-pack
 Or with customization options:
 
 ```bash
-npx nextjs-starter-pack my-app --dark-mode --form rhf-zod --tanstack-query --state zustand
+npx nextjs-starter-pack my-app --dark-mode --state zustand
 ```
 
 ## 🛠️ CLI Options
 
-| Option               | Description                                                                                                                                    |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `[projectName]`      | Name of your project                                                                                                                           |
-| `--dark-mode`        | Include dark mode with next-themes                                                                                                             |
-| `--form <validator>` | Choose form validator:<br/>• `rhf` - React Hook Form<br/>• `rhf-zod` - React Hook Form with Zod<br/>• `none` - No form library                 |
-| `--tanstack-query`   | Include TanStack Query                                                                                                                         |
-| `--state <library>`  | Choose state management library:<br/>• `zustand` - Zustand state management<br/>• `jotai` - Jotai atomic state<br/>• `none` - No state library |
+| Option              | Description                                                                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[projectName]`     | Name of your project                                                                                                                           |
+| `--dark-mode`       | Dark mode with next-themes                                                                                                                     |
+| `--rhf`             | React Hook Form with Zod                                                                                                                       |
+| `--tanstack-query`  | TanStack Query                                                                                                                                 |
+| `--state <library>` | Choose state management library:<br/>• `zustand` - Zustand state management<br/>• `jotai` - Jotai atomic state<br/>• `none` - No state library |
+| `prisma`            | Prisma ORM                                                                                                                                     |
 
 ## 🛣️ Roadmap
 
 - [ ] 🔐 **Authentication** - Next Auth integration for secure user sessions
-- [ ] 📁 **Database ORM** - Choose between Prisma and Drizzle
+- [ ] 📁 **Drizzle ORM** - Add support for Drizzle ORM
 - [ ] 📝 **Sample Code** - Add more examples for all included libraries
 - [ ] 📊 **Analytics** - Integration with popular analytics platforms
 - [ ] 🧪 **Testing** - Jest, React Testing Library, and Cypress support

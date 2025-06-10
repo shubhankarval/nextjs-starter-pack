@@ -67,7 +67,7 @@ export async function setupPrisma(
 ): Promise<void> {
   console.log("");
   const prismaSpinner = ora({
-    text: chalk.cyan("🛆  Setting up Prisma ORM...\n"),
+    text: chalk.cyan("📁  Setting up Prisma ORM...\n"),
     color: "cyan",
   }).start();
   const pkg = packageManager === "npm" ? "npx" : packageManager;
