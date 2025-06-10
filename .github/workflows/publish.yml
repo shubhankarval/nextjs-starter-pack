@@ -96,11 +96,15 @@ jobs:
             fi
           fi
 
+          if [ "$REQUIRE_VERSION_UPDATE" = "false" ]; then
+            echo "❌ No version-requiring changes detected. Exiting workflow."
+            exit 1
+          fi
+
           echo "require_version_update=$REQUIRE_VERSION_UPDATE" >> $GITHUB_OUTPUT
 
       - name: Determine version type from conventional commits
         id: version-type
-        if: steps.check-changes.outputs.require_version_update == 'true'
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
 
@@ -131,7 +135,6 @@ jobs:
 
       # Make sure git is clean before version update
       - name: Clean git state
-        if: steps.check-changes.outputs.require_version_update == 'true'
         run: |
           git status
           git config --global user.name 'GitHub Actions'
@@ -140,7 +143,6 @@ jobs:
           git stash -u || true
 
       - name: Update package version
-        if: steps.check-changes.outputs.require_version_update == 'true'
         id: update-version
         run: |
           VERSION_TYPE="${{ steps.version-type.outputs.version_type }}"
@@ -162,31 +164,12 @@ jobs:
 
           echo "Updated to version $NEW_VERSION"
 
-      - name: Publish package with version update
-        if: steps.check-changes.outputs.require_version_update == 'true'
+      - name: Publish package
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish package without version update
-        if: steps.check-changes.outputs.require_version_update == 'false'
-        run: |
-          # Check if any files were changed at all
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
-          if [ -n "$CHANGED_FILES" ]; then
-            echo "Publishing without version update"
-            npm publish --no-git-tag-version
-          else
-            echo "No changes detected, skipping publish"
-          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create notification for successful publish
         if: success()
         run: |
-          if [ "${{ steps.check-changes.outputs.require_version_update }}" == "true" ]; then
-            echo "✅ Published nextjs-starter-pack v${{ steps.update-version.outputs.new_version }} to npm"
-          else
-            echo "✅ Updated nextjs-starter-pack on npm (same version)"
-          fi
+          echo "✅ Published nextjs-starter-pack v${{ steps.update-version.outputs.new_version }} to npm"
