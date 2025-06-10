@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { Task } from "@/types";
+{{IMPORT}}
 import {
   getAllTasks,
   deleteTaskFromDB,

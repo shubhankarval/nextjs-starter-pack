@@ -102,6 +102,10 @@ export async function addFiles({
         dest: path.join(tempDir, ".env.example"),
       },
       {
+        src: path.join(prismaDir, ".env"),
+        dest: path.join(tempDir, ".env"),
+      },
+      {
         src: path.join(prismaDir, ".gitignore"),
         dest: path.join(tempDir, ".gitignore"),
       },

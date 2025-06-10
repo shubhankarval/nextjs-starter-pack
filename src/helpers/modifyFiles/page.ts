@@ -47,7 +47,7 @@ export const modifyPage = async ({
       "const [filter, setFilter] = useAtom(filterAtom);",
       "const addTask = useSetAtom(addTaskAtom);"
     );
-    rhf &&
+    !rhf &&
       stateLogic.push("const [newTask, setNewTask] = useAtom(newTaskAtom);");
   } else {
     bottomImports.push(

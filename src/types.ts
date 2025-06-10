@@ -15,3 +15,5 @@ export interface FileMapping {
   src: string;
   dest: string;
 }
+
+export type PackageManager = "npm" | "yarn" | "pnpm";

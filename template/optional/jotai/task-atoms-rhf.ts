@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 
-import { Task } from "@/types";
+{{IMPORT}}
 import {
   getAllTasks,
   addTaskToDB,

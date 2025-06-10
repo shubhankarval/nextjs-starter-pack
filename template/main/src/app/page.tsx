@@ -1,4 +1,5 @@
 'use client';
+
 {{TOP_IMPORTS}}
 import Link from 'next/link';
 import { Github, Package, Plus } from 'lucide-react';

@@ -13,7 +13,7 @@ import { mind } from "gradient-string";
 import type { Options } from "./types.js";
 import { addFiles } from "./helpers/addFiles.js";
 import { modifyFiles } from "./helpers/modifyFiles/modifyFiles.js";
-import { installDependencies } from "./helpers/install.js";
+import { installDependencies, setupPrisma } from "./helpers/run.js";
 import { getPackageManager } from "./helpers/utils.js";
 
 interface Prompts extends Options {
@@ -225,7 +225,8 @@ export const createApp = async (): Promise<void> => {
 
     // Setup dependencies and format files
     const packageManager = getPackageManager();
-    installDependencies(destDir, packageManager);
+    await installDependencies(destDir, packageManager);
+    prisma && (await setupPrisma(destDir, packageManager));
 
     // Final success message
     console.log("\n" + chalk.bgCyan.black(" NEXT STEPS ") + "\n");

@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import fs from "fs-extra";
 
-type PackageManager = "npm" | "yarn" | "pnpm";
+import { PackageManager } from "../types.js";
 
 export const getPackageManager = (): PackageManager => {
   let packageManager: PackageManager = "npm";
