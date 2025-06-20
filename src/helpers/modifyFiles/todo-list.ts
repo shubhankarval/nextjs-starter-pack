@@ -3,16 +3,16 @@ import path from "path";
 import type { FileProps } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
-type PageProps = Pick<FileProps, "darkMode" | "rhf" | "state" | "tempDir">;
+type TodoListProps = Pick<FileProps, "darkMode" | "rhf" | "state" | "tempDir">;
 
-export const modifyPage = async ({
+export const modifyTodoList = async ({
   darkMode,
   rhf,
   state,
   tempDir,
-}: PageProps) => {
-  //app/page.tsx
-  const pagePath = path.join(tempDir, "src/app/page.tsx");
+}: TodoListProps) => {
+  //components/todo-list.tsx
+  const todoListPath = path.join(tempDir, "src/components/todo-list.tsx");
 
   const topImports: string[] = [];
   const bottomImports: string[] = [];
@@ -78,11 +78,11 @@ export const modifyPage = async ({
     );
     formSchema =
       "const formSchema = z.object({taskName: z.string().min(2, {message: 'Task name must be at least 2 characters.'})});";
-    form = `<Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="mb-6 flex space-x-2"><FormField control={form.control} name="taskName" render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="text" placeholder="Add a new task..." {...field} /></FormControl><FormMessage /></FormItem>)} /><Button size="icon" aria-label="Add task" type="submit"><Plus className="h-4 w-4" /></Button></form></Form>`;
     formLogic.push(
       `const form = useForm<z.infer<typeof formSchema>>({ resolver: zodResolver(formSchema), defaultValues: { taskName: '', }, });\n`,
       `function onSubmit(values: z.infer<typeof formSchema>) { addTask(values.taskName); form.reset(); }`
     );
+    form = `<Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="mb-6 flex space-x-2"><FormField control={form.control} name="taskName" render={({ field }) => (<FormItem className="flex-1"><FormControl><Input type="text" placeholder="Add a new task..." {...field} /></FormControl><FormMessage /></FormItem>)} /><Button size="icon" aria-label="Add task" type="submit"><Plus className="h-4 w-4" /></Button></form></Form>`;
   }
 
   const replacements = {
@@ -95,5 +95,5 @@ export const modifyPage = async ({
     FORM: form,
   };
 
-  await replacePlaceholdersInFile(pagePath, replacements);
+  await replacePlaceholdersInFile(todoListPath, replacements);
 };

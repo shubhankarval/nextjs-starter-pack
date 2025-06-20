@@ -36,7 +36,7 @@ export const modifyTasksComponent = async ({
   } else {
     importStmt = "import { useTaskContext } from '@context/task-context';";
     taskState.push(
-      "const { filteredTasks, filter, loading, toggleComplete, deleteTask } = useTaskStore();"
+      "const { filteredTasks, filter, loading, toggleComplete, deleteTask } = useTaskContext();"
     );
   }
 
