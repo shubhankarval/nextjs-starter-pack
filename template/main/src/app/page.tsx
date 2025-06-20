@@ -1,25 +1,11 @@
-'use client';
-
-{{TOP_IMPORTS}}
 import Link from 'next/link';
-import { Github, Package, Plus } from 'lucide-react';
+import { Github, Package } from 'lucide-react';
 
-{{BOTTOM_IMPORTS}}
-import { Button } from '@components/ui/button';
-import { Input } from '@components/ui/input';
-import { Greeting } from '@components/greeting';
-import { Tasks } from '@components/tasks';
-
-{{FORM_SCHEMA}}
+import { TodoList } from '@components/todo-list';
 
 export default function Home() {
-  {{STATE_LOGIC}}
-
-  {{FORM_LOGIC}}
-
   return (
     <div className="min-h-screen overflow-hidden font-sans">
-      {/* Header */}
       <header className="w-full px-4 py-3">
         <div className="mx-auto flex max-w-7xl items-center justify-end space-x-4">
           <Link
@@ -43,48 +29,10 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main content */}
       <main className="mb-5 flex items-center justify-center transition-colors duration-300 lg:mt-5">
-        <div className="mx-auto flex w-full max-w-md flex-col p-6">
-          <div className="mb-6 flex items-center gap-2">
-            {{THEME_SWITCH}}
-            <Greeting />
-          </div>
-
-          {{FORM}}
-          
-          <div className="mb-4 flex space-x-2">
-            <Button
-              variant={filter === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter('all')}
-              className="flex-1"
-            >
-              All
-            </Button>
-            <Button
-              variant={filter === 'active' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter('active')}
-              className="flex-1"
-            >
-              Active
-            </Button>
-            <Button
-              variant={filter === 'done' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter('done')}
-              className="flex-1"
-            >
-              Done
-            </Button>
-          </div>
-          {/* Task list */}
-          <Tasks />
-        </div>
+        <TodoList />
       </main>
 
-      {/* Footer */}
       <footer className="bg-background border-border fixed bottom-0 flex w-full justify-center border-t px-4 py-3">
         <p className="text-muted-foreground text-xs">
           &copy; {new Date().getFullYear() + ' nextjs-starter-pack. By '}
