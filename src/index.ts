@@ -38,17 +38,20 @@ const tempDir = path.join(os.tmpdir(), `temp-${nanoid()}`);
 const program = new Command();
 program
   .name("nextjs-starter-pack")
-  .argument("[projectName]", "Name of the project")
   .description("Create a Next.js app with a starter pack")
-  .option("--dark-mode", "Include dark mode")
-  .option("--rhf", "Include React Hook Form with Zod")
-  .option("--tanstack-query", "Include TanStack Query")
+  .argument("[projectName]", "Name of your project")
+  .option("-d, --dark-mode", "Add dark mode")
+  .option("-r, --rhf", "Add React Hook Form with Zod")
+  .option("-q, --tanstack-query", "Add TanStack Query")
   .option(
-    "--state <library>",
+    "-s, --state <library>",
     "Choose state management library (zustand, jotai)"
   )
-  .option("--prisma", "Include Prisma ORM")
-  .option("--auth <library>", "Choose authentication library (authjs, clerk)")
+  .option("-p, --prisma", "Add Prisma ORM")
+  .option(
+    "-a, --auth <library>",
+    "Choose authentication library (authjs, clerk)"
+  )
   .parse(process.argv);
 
 export const createApp = async (): Promise<void> => {
@@ -71,9 +74,14 @@ export const createApp = async (): Promise<void> => {
 
   try {
     // Validate list options
-    const validStates = ["zustand", "jotai", "none"];
+    const validStates = ["zustand", "jotai"];
     if (options.state && !validStates.includes(options.state)) {
       throw new Error(`Invalid state management library: ${options.state}`);
+    }
+
+    const validAuth = ["authjs", "clerk"];
+    if (options.auth && !validAuth.includes(options.auth)) {
+      throw new Error(`Invalid authentication library: ${options.auth}`);
     }
 
     const packageJsonPath = path.join(mainDir, "package.json");

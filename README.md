@@ -49,15 +49,15 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 
 ## 🛠️ CLI Options
 
-| Option              | Description                                |
-| ------------------- | ------------------------------------------ |
-| `[projectName]`     | Name of your project                       |
-| `--dark-mode`       | Dark mode with next-themes                 |
-| `--rhf`             | React Hook Form with Zod                   |
-| `--tanstack-query`  | TanStack Query                             |
-| `--state <library>` | State management with `zustand` or `jotai` |
-| `--prisma`          | Prisma ORM                                 |
-| `--auth <library>`  | Authentication with `authjs` or `clerk`    |
+| Option                  | Description                                |
+| ----------------------- | ------------------------------------------ |
+| `[projectName]`         | Name of your project                       |
+| `-d, --dark-mode`       | Dark mode with next-themes                 |
+| `-r, --rhf`             | React Hook Form with Zod                   |
+| `-q, --tanstack-query`  | TanStack Query                             |
+| `-s, --state <library>` | State management with `zustand` or `jotai` |
+| `-p, --prisma`          | Prisma ORM                                 |
+| `-a, --auth <library>`  | Authentication with `authjs` or `clerk`    |
 
 ## 🛣️ Roadmap
 
@@ -84,7 +84,7 @@ my-app/
 │   ├── store/         # Zustand/Jotai
 │   ├── lib/           # Helpers & utils
 │   └── context/       # Context providers
-└── config + setup     # ESLint, Tailwind, TypeScript, etc.
+└── config + setup     # ESLint, Prettier, TypeScript, etc.
 ```
 
 ## 👥 Contributing
