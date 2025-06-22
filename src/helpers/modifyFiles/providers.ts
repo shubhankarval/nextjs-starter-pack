@@ -1,34 +1,26 @@
 import path from "path";
 import fs from "fs-extra";
 
-import type { FileProps, FileMapping } from "../../types.js";
+import type { FileProps } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
 type ProvidersProps = Pick<
   FileProps,
-  "darkMode" | "tanstackQuery" | "state" | "optionalDir" | "tempDir"
+  "darkMode" | "tanstackQuery" | "state" | "tempDir"
 >;
 
 export const modifyProviders = async ({
   darkMode,
   tanstackQuery,
   state,
-  optionalDir,
   tempDir,
 }: ProvidersProps) => {
-  //layout.tsx & providers.tsx
+  //providers.tsx
 
   const providersPath = path.join(tempDir, "src/app/providers.tsx");
   const isStateLibrary = state && state !== "none";
 
   if (isStateLibrary && !darkMode && !tanstackQuery) {
-    const fileMap: FileMapping = {
-      src: path.join(optionalDir, "common/layout.tsx"),
-      dest: path.join(tempDir, "src/app/layout.tsx"),
-    };
-    await fs.copy(fileMap.src, fileMap.dest, {
-      overwrite: true,
-    });
     await fs.remove(providersPath);
   } else {
     const imports: string[] = [];

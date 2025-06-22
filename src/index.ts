@@ -48,6 +48,7 @@ program
     "Choose state management library (zustand, jotai, none)"
   )
   .option("--prisma", "Include Prisma ORM")
+  .option("--auth <library>", "Choose authentication library (authjs, clerk)")
   .parse(process.argv);
 
 export const createApp = async (): Promise<void> => {
@@ -150,6 +151,27 @@ export const createApp = async (): Promise<void> => {
         default: true,
         when: () => !options.prisma,
       },
+      {
+        type: "list",
+        name: "auth",
+        message: "Do you want to include authentication?",
+        choices: [
+          {
+            name: "Auth.js",
+            value: "authjs",
+          },
+          {
+            name: "Clerk",
+            value: "clerk",
+          },
+          {
+            name: "None",
+            value: undefined,
+          },
+        ],
+        default: "authjs",
+        when: () => !options.auth,
+      },
     ]);
 
     // spinner for file operations
@@ -192,6 +214,13 @@ export const createApp = async (): Promise<void> => {
       pkg.prisma.seed = "tsx prisma/seed.ts";
     }
 
+    const auth = options.auth || prompts.auth;
+    if (auth === "authjs") {
+      pkg.dependencies["next-auth"] = "^5.0.0-beta.28";
+    } else if (auth === "clerk") {
+      pkg.dependencies["@clerk/nextjs"] = "^6.22.0";
+    }
+
     // Copy from main to temp directory
     await fs.copy(mainDir, tempDir);
 
@@ -207,6 +236,7 @@ export const createApp = async (): Promise<void> => {
       tanstackQuery,
       state,
       prisma,
+      auth,
       optionalDir,
       tempDir,
     };

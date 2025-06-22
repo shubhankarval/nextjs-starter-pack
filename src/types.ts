@@ -4,6 +4,7 @@ export interface Options {
   tanstackQuery?: boolean;
   state?: "zustand" | "jotai" | "none";
   prisma?: boolean;
+  auth?: "authjs" | "clerk";
 }
 
 export interface FileProps extends Options {

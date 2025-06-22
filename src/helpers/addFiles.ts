@@ -8,6 +8,7 @@ export async function addFiles({
   tanstackQuery,
   state,
   prisma,
+  auth,
   optionalDir,
   tempDir,
 }: FileProps) {
@@ -54,16 +55,10 @@ export async function addFiles({
   if (tanstackQuery) {
     const tanstackQueryDir = path.join(optionalDir, "tanstack-query");
 
-    fileMap.push(
-      {
-        src: path.join(tanstackQueryDir, "get-query-client.ts"),
-        dest: path.join(tempDir, "src/lib/get-query-client.ts"),
-      },
-      {
-        src: path.join(tanstackQueryDir, "greeting.tsx"),
-        dest: path.join(tempDir, "src/components/greeting.tsx"),
-      }
-    );
+    fileMap.push({
+      src: path.join(tanstackQueryDir, "get-query-client.ts"),
+      dest: path.join(tempDir, "src/lib/get-query-client.ts"),
+    });
   }
 
   if (state && state !== "none") {
@@ -98,14 +93,6 @@ export async function addFiles({
 
     fileMap.push(
       {
-        src: path.join(prismaDir, ".env.example"),
-        dest: path.join(tempDir, ".env.example"),
-      },
-      {
-        src: path.join(prismaDir, ".env"),
-        dest: path.join(tempDir, ".env"),
-      },
-      {
         src: path.join(prismaDir, ".gitignore"),
         dest: path.join(tempDir, ".gitignore"),
       },
@@ -129,6 +116,65 @@ export async function addFiles({
 
     await fs.ensureDir(path.join(tempDir, "prisma"));
     await fs.remove(path.join(tempDir, "src/types.ts"));
+  }
+
+  if (auth) {
+    fileMap.push({
+      src: path.join(commonDir, "page.tsx"),
+      dest: path.join(tempDir, "src/app/page.tsx"),
+    });
+
+    if (auth === "authjs") {
+      const authJSDir = path.join(optionalDir, "authjs");
+
+      fileMap.push(
+        {
+          src: path.join(authJSDir, "auth.ts"),
+          dest: path.join(tempDir, "src/lib/auth.ts"),
+        },
+        {
+          src: path.join(authJSDir, "route.ts"),
+          dest: path.join(tempDir, "src/app/api/auth/[...nextauth]/route.ts"),
+        },
+        {
+          src: path.join(authJSDir, "auth.tsx"),
+          dest: path.join(tempDir, "src/components/auth.tsx"),
+        }
+      );
+    } else if (auth === "clerk") {
+      const clerkDir = path.join(optionalDir, "clerk");
+
+      fileMap.push(
+        {
+          src: path.join(clerkDir, "auth.tsx"),
+          dest: path.join(tempDir, "src/components/auth.tsx"),
+        },
+        {
+          src: path.join(clerkDir, "middleware.ts"),
+          dest: path.join(tempDir, "src/middleware.ts"),
+        }
+      );
+    }
+  }
+
+  if (tanstackQuery || auth) {
+    const tanstackQueryDir = path.join(optionalDir, "tanstack-query");
+    const authJSDir = path.join(optionalDir, "authjs");
+    const clerkDir = path.join(optionalDir, "clerk");
+
+    const greetingDir =
+      auth === "authjs"
+        ? authJSDir
+        : auth === "clerk"
+        ? clerkDir
+        : tanstackQueryDir;
+    const greetingFile =
+      auth && tanstackQuery ? "greeting-tanstack.tsx" : "greeting.tsx";
+
+    fileMap.push({
+      src: path.join(greetingDir, greetingFile),
+      dest: path.join(tempDir, "src/components/greeting.tsx"),
+    });
   }
 
   // copy files in parallel
