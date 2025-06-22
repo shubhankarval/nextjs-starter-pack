@@ -18,9 +18,8 @@ export const modifyProviders = async ({
   //providers.tsx
 
   const providersPath = path.join(tempDir, "src/app/providers.tsx");
-  const isStateLibrary = state && state !== "none";
 
-  if (isStateLibrary && !darkMode && !tanstackQuery) {
+  if (state && !darkMode && !tanstackQuery) {
     await fs.remove(providersPath);
   } else {
     const imports: string[] = [];
@@ -46,7 +45,7 @@ export const modifyProviders = async ({
       providersClose.unshift("</ThemeProvider>");
     }
 
-    if (!isStateLibrary) {
+    if (!state) {
       imports.push('import { TaskProvider } from "@context/task-context";');
       providersOpen.push("<TaskProvider>");
       providersClose.unshift("</TaskProvider>");

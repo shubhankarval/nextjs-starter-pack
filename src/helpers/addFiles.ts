@@ -44,7 +44,7 @@ export async function addFiles({
       }
     );
 
-    if (!state || state === "none") {
+    if (!state) {
       fileMap.push({
         src: path.join(rhfDir, "task-context-rhf.tsx"),
         dest: path.join(tempDir, "src/context/task-context.tsx"),
@@ -61,7 +61,7 @@ export async function addFiles({
     });
   }
 
-  if (state && state !== "none") {
+  if (state) {
     fileMap.push({
       src: path.join(commonDir, "tsconfig.json"),
       dest: path.join(tempDir, "tsconfig.json"),

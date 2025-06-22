@@ -29,7 +29,7 @@ export const modifyLayout = async ({
     providersClose.unshift("</ClerkProvider>");
   }
 
-  if (!state || state === "none" || darkMode || tanstackQuery) {
+  if (!state || darkMode || tanstackQuery) {
     providerImpt = "import { Providers } from './providers';";
     providersOpen.push("<Providers>");
     providersClose.unshift("</Providers>");

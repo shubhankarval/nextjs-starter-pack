@@ -12,7 +12,7 @@ import { mind } from "gradient-string";
 
 import type { Options } from "./types.js";
 import { addFiles } from "./helpers/addFiles.js";
-import { modifyFiles } from "./helpers/modifyFiles/modifyFiles.js";
+import { modifyFiles } from "./helpers/modifyFiles/index.js";
 import { installDependencies, setupPrisma } from "./helpers/run.js";
 import { getPackageManager } from "./helpers/utils.js";
 
@@ -45,7 +45,7 @@ program
   .option("--tanstack-query", "Include TanStack Query")
   .option(
     "--state <library>",
-    "Choose state management library (zustand, jotai, none)"
+    "Choose state management library (zustand, jotai)"
   )
   .option("--prisma", "Include Prisma ORM")
   .option("--auth <library>", "Choose authentication library (authjs, clerk)")
@@ -138,7 +138,7 @@ export const createApp = async (): Promise<void> => {
           },
           {
             name: "None",
-            value: "none",
+            value: undefined,
           },
         ],
         default: "zustand",
@@ -157,7 +157,7 @@ export const createApp = async (): Promise<void> => {
         message: "Do you want to include authentication?",
         choices: [
           {
-            name: "Auth.js",
+            name: "Auth.js (formerly NextAuth)",
             value: "authjs",
           },
           {
