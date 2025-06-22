@@ -2,8 +2,9 @@ export interface Options {
   darkMode?: boolean;
   rhf?: boolean;
   tanstackQuery?: boolean;
-  state?: "zustand" | "jotai" | "none";
+  state?: "zustand" | "jotai";
   prisma?: boolean;
+  auth?: "authjs" | "clerk";
 }
 
 export interface FileProps extends Options {

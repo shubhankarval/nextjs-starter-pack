@@ -12,7 +12,7 @@ import { mind } from "gradient-string";
 
 import type { Options } from "./types.js";
 import { addFiles } from "./helpers/addFiles.js";
-import { modifyFiles } from "./helpers/modifyFiles/modifyFiles.js";
+import { modifyFiles } from "./helpers/modifyFiles/index.js";
 import { installDependencies, setupPrisma } from "./helpers/run.js";
 import { getPackageManager } from "./helpers/utils.js";
 
@@ -45,9 +45,10 @@ program
   .option("--tanstack-query", "Include TanStack Query")
   .option(
     "--state <library>",
-    "Choose state management library (zustand, jotai, none)"
+    "Choose state management library (zustand, jotai)"
   )
   .option("--prisma", "Include Prisma ORM")
+  .option("--auth <library>", "Choose authentication library (authjs, clerk)")
   .parse(process.argv);
 
 export const createApp = async (): Promise<void> => {
@@ -137,7 +138,7 @@ export const createApp = async (): Promise<void> => {
           },
           {
             name: "None",
-            value: "none",
+            value: undefined,
           },
         ],
         default: "zustand",
@@ -149,6 +150,27 @@ export const createApp = async (): Promise<void> => {
         message: "Do you want to include Prisma ORM?",
         default: true,
         when: () => !options.prisma,
+      },
+      {
+        type: "list",
+        name: "auth",
+        message: "Do you want to include authentication?",
+        choices: [
+          {
+            name: "Auth.js (formerly NextAuth)",
+            value: "authjs",
+          },
+          {
+            name: "Clerk",
+            value: "clerk",
+          },
+          {
+            name: "None",
+            value: undefined,
+          },
+        ],
+        default: "authjs",
+        when: () => !options.auth,
       },
     ]);
 
@@ -192,6 +214,13 @@ export const createApp = async (): Promise<void> => {
       pkg.prisma.seed = "tsx prisma/seed.ts";
     }
 
+    const auth = options.auth || prompts.auth;
+    if (auth === "authjs") {
+      pkg.dependencies["next-auth"] = "^5.0.0-beta.28";
+    } else if (auth === "clerk") {
+      pkg.dependencies["@clerk/nextjs"] = "^6.22.0";
+    }
+
     // Copy from main to temp directory
     await fs.copy(mainDir, tempDir);
 
@@ -207,6 +236,7 @@ export const createApp = async (): Promise<void> => {
       tanstackQuery,
       state,
       prisma,
+      auth,
       optionalDir,
       tempDir,
     };
@@ -234,6 +264,10 @@ export const createApp = async (): Promise<void> => {
     console.log(
       `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} run dev`)}`
     );
+    auth &&
+      console.log(
+        `  ${chalk.cyan("3.")} ${chalk.bold("set up your auth provider")}`
+      );
 
     console.log("\n" + chalk.green("Happy coding!🚀") + "\n");
   } catch (err: any) {

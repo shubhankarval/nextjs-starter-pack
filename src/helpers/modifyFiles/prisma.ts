@@ -1,16 +1,11 @@
 import path from "path";
-import fs from "fs-extra";
 
 import type { FileProps } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
 type PrismaProps = Pick<FileProps, "state" | "prisma" | "tempDir">;
 
-export const modifyPrisma = async ({
-  state,
-  prisma,
-  tempDir,
-}: PrismaProps) => {
+export const modifyPrisma = async ({ state, prisma, tempDir }: PrismaProps) => {
   let statePath = "";
   if (state === "zustand") {
     statePath = path.join(tempDir, "src/store/task-store.ts");
