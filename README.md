@@ -12,25 +12,8 @@
 </div>
 
 <p align="center">
-  A modern, customizable starter template for Next.js applications with all the essential integrations ready to go.
+  A modern, customizable Next.js starter with all the essential integrations. Zero configuration required.
 </p>
-
-## ✨ Features
-
-Create a powerful Next.js application with zero configuration. This starter pack includes:
-
-- ⚡️ **Next.js 15** - The latest version with App Router and enhanced performance
-- ⚛️ **React 19** - Utilizing the newest React features
-- 🔷 **TypeScript** - For type safety and improved developer experience
-- 🎨 **Tailwind CSS v4** - For rapid UI development
-- 🌓 **Dark Mode** - Integrated with next-themes for seamless theme switching
-- 📊 **Data Fetching** - TanStack Query for efficient data management
-- 📋 **Form Handling** - React Hook Form with optional Zod validation
-- 🔄 **State Management** - Options for Zustand or Jotai
-- 📁 **Prisma** - Manage database using Prisma ORM
-- 🛠️ **Development Tools** - ESLint and Prettier configurations
-- 📦 **Import Aliases** - For cleaner imports
-- 🔍 **Icons** - Lucide React for beautiful, customizable icons
 
 ## 📦 Quick Start
 
@@ -46,46 +29,62 @@ Or with customization options:
 npx nextjs-starter-pack my-app --dark-mode --state zustand
 ```
 
+## ✨ Features
+
+- ⚡️ **Next.js 15 (App Router)**
+- ⚛️ **React 19**
+- 🔷 **TypeScript**
+- 🎨 **Tailwind CSS v4**
+- 🌓 **Dark Mode (next-themes)**
+- 🧩 **Shadcn UI**
+- 🖼️ **Lucide Icons**
+- 🛠️ **ESLint and Prettier**
+- 📦 **Import Aliases**
+- 📊 **TanStack Query**
+- 📋 **React Hook Form**
+- 🛡️ **Zod Validation**
+- 🔄 **Zustand / Jotai**
+- 📁 **Prisma ORM**
+- 🔐 **Auth.js / Clerk**
+
 ## 🛠️ CLI Options
 
-| Option              | Description                                                                                                                                    |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `[projectName]`     | Name of your project                                                                                                                           |
-| `--dark-mode`       | Dark mode with next-themes                                                                                                                     |
-| `--rhf`             | React Hook Form with Zod                                                                                                                       |
-| `--tanstack-query`  | TanStack Query                                                                                                                                 |
-| `--state <library>` | Choose state management library:<br/>• `zustand` - Zustand state management<br/>• `jotai` - Jotai atomic state<br/>• `none` - No state library |
-| `prisma`            | Prisma ORM                                                                                                                                     |
+| Option              | Description                                |
+| ------------------- | ------------------------------------------ |
+| `[projectName]`     | Name of your project                       |
+| `--dark-mode`       | Dark mode with next-themes                 |
+| `--rhf`             | React Hook Form with Zod                   |
+| `--tanstack-query`  | TanStack Query                             |
+| `--state <library>` | State management with `zustand` or `jotai` |
+| `--prisma`          | Prisma ORM                                 |
+| `--auth <library>`  | Authentication with `authjs` or `clerk`    |
 
 ## 🛣️ Roadmap
 
-- [ ] 🔐 **Authentication** - Next Auth integration for secure user sessions
-- [ ] 📁 **Drizzle ORM** - Add support for Drizzle ORM
-- [ ] 📝 **Sample Code** - Add more examples for all included libraries
-- [ ] 📊 **Analytics** - Integration with popular analytics platforms
-- [ ] 🧪 **Testing** - Jest, React Testing Library, and Cypress support
-- [ ] 💳 **Payments** - Stripe integration for e-commerce applications
-- [ ] 🌐 **i18n** - Internationalization and localization support
-- [ ] 🔒 **Security** - Security headers and best practices
-- [ ] 🏎️ **Performance** - Image optimization and core web vitals
-- [ ] 📱 **PWA** - Progressive Web App capabilities
-- [ ] 🎭 **Storybook** - Component documentation
-- [ ] 🔄 **CI/CD** - Continuous integration and deployment
-- [ ] 📧 **Email** - Email templates and sending capabilities
-- [ ] 🤖 **API** - Example API routes and patterns
+- [ ] 📁 Drizzle ORM
+- [ ] 📊 Analytics
+- [ ] 🧪 Testing - Jest, RTL, and Cypress support
+- [ ] 💳 Stripe integration
+- [ ] 🌐 i18n
+- [ ] 🔒 Security headers and best practices
+- [ ] 📱 Progressive Web App capabilities
+- [ ] 🎭 Storybook - Component documentation
+- [ ] 🔄 CI/CD
+- [ ] 📧 Email templates and sending capabilities
 
 ## 📁 Project Structure
 
-```
+```py
 my-app/
-├── app/                   # Next.js App Router
-├── components/            # React components
-│   ├── ui/                # UI components
-│   └── forms/             # Form components
-├── lib/                   # Utility functions
-├── public/                # Static files
-├── .eslintrc.json         # ESLint configuration
-└── .prettierrc            # Prettier configuration
+├── prisma/            # DB schema & seeding
+├── src/
+│   ├── app/           # App router (layout, routes, API)
+│   ├── components/    # Reusable UI (Shadcn UI)
+│   ├── actions/       # Server actions
+│   ├── store/         # Zustand/Jotai
+│   ├── lib/           # Helpers & utils
+│   └── context/       # Context providers
+└── config + setup     # ESLint, Tailwind, TypeScript, etc.
 ```
 
 ## 👥 Contributing
@@ -97,7 +96,7 @@ Contributions are welcome! Here's how you can help:
 3. Commit and push your changes to the branch
 4. Open a Pull Request
 
-Please make sure to update tests as appropriate and follow the code style of the project.
+Please make sure to follow the existing code style of the project.
 <br/>
 <br/>
 
