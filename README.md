@@ -92,9 +92,9 @@ my-app/
 Contributions are welcome! Here's how you can help:
 
 1. Fork the repository
-2. Create a new branch
+2. Create a new branch from `develop`
 3. Commit and push your changes to the branch
-4. Open a Pull Request
+4. Open a Pull Request to `develop`
 
 Please make sure to follow the existing code style of the project.
 <br/>

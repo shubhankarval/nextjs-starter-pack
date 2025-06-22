@@ -264,6 +264,10 @@ export const createApp = async (): Promise<void> => {
     console.log(
       `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} run dev`)}`
     );
+    auth &&
+      console.log(
+        `  ${chalk.cyan("3.")} ${chalk.bold("set up your auth provider")}`
+      );
 
     console.log("\n" + chalk.green("Happy coding!🚀") + "\n");
   } catch (err: any) {
