@@ -10,7 +10,13 @@ import figlet from "figlet";
 import chalk from "chalk";
 import { mind } from "gradient-string";
 
-import type { Options, Prompts, PackageJson } from "./types.js";
+import type {
+  Options,
+  Prompts,
+  PackageJson,
+  ScaffoldContext,
+} from "./types.js";
+import { addDependencies } from "./helpers/deps.js";
 import { addFiles } from "./helpers/addFiles.js";
 import { modifyFiles } from "./helpers/modifyFiles/index.js";
 import { installDependencies, setupPrisma } from "./helpers/run.js";
@@ -178,56 +184,13 @@ export const createApp = async (): Promise<void> => {
     }).start();
 
     const darkMode = options.darkMode || prompts.darkMode;
-    if (darkMode) {
-      pkg.dependencies["next-themes"] = "^0.4.6";
-    }
-
     const rhf = options.rhf || prompts.rhf;
-    if (rhf) {
-      pkg.dependencies["react-hook-form"] = "^7.56.4";
-      pkg.dependencies["@hookform/resolvers"] = "^5.0.1";
-      pkg.dependencies["zod"] = "^3.24.4";
-      pkg.dependencies["@radix-ui/react-label"] = "^2.1.6";
-    }
-
     const tanstackQuery = options.tanstackQuery || prompts.tanstackQuery;
-    if (tanstackQuery) {
-      pkg.dependencies["@tanstack/react-query"] = "^5.74.4";
-    }
-
     const state = options.state || prompts.state;
-    if (state === "zustand") {
-      pkg.dependencies["zustand"] = "^5.0.3";
-    } else if (state === "jotai") {
-      pkg.dependencies["jotai"] = "^2.12.3";
-    }
-
     const prisma = options.prisma || prompts.prisma;
-    if (prisma) {
-      pkg.dependencies["@prisma/client"] = "^6.7.0";
-      pkg.devDependencies["prisma"] = "^6.7.0";
-      pkg.devDependencies["tsx"] = "^4.19.4";
-      pkg.prisma = {};
-      pkg.prisma.seed = "tsx prisma/seed.ts";
-    }
-
     const auth = options.auth || prompts.auth;
-    if (auth === "authjs") {
-      pkg.dependencies["next-auth"] = "^5.0.0-beta.28";
-    } else if (auth === "clerk") {
-      pkg.dependencies["@clerk/nextjs"] = "^6.22.0";
-    }
 
-    // Copy from main to temp directory
-    await fs.copy(mainDir, tempDir);
-
-    // Add dependencies based on user input
-    await fs.writeJson(path.join(tempDir, "package.json"), pkg, {
-      spaces: 2,
-    });
-
-    // Add/overwrite/modify files based on user input
-    const props = {
+    const params: ScaffoldContext = {
       darkMode,
       rhf,
       tanstackQuery,
@@ -237,8 +200,25 @@ export const createApp = async (): Promise<void> => {
       optionalDir,
       tempDir,
     };
-    await addFiles(props);
-    await modifyFiles(props);
+
+    // Add dependencies based on user input
+    const { dependencies, devDependencies } = addDependencies(params);
+    pkg.dependencies = dependencies;
+    pkg.devDependencies = devDependencies;
+    if (prisma) {
+      pkg.prisma = { seed: "tsx prisma/seed.ts" };
+    }
+
+    // Copy from main to temp directory
+    await fs.copy(mainDir, tempDir);
+
+    await fs.writeJson(path.join(tempDir, "package.json"), pkg, {
+      spaces: 2,
+    });
+
+    // Add/overwrite/modify files based on user input
+    await addFiles(params);
+    await modifyFiles(params);
 
     // Move files from temp to destination directory
     await fs.move(tempDir, destDir);
