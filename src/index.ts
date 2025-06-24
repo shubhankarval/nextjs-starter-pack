@@ -10,22 +10,11 @@ import figlet from "figlet";
 import chalk from "chalk";
 import { mind } from "gradient-string";
 
-import type { Options } from "./types.js";
+import type { Options, Prompts, PackageJson } from "./types.js";
 import { addFiles } from "./helpers/addFiles.js";
 import { modifyFiles } from "./helpers/modifyFiles/index.js";
 import { installDependencies, setupPrisma } from "./helpers/run.js";
 import { getPackageManager } from "./helpers/utils.js";
-
-interface Prompts extends Options {
-  projectName?: string;
-}
-
-interface PackageJson {
-  name: string;
-  dependencies: Record<string, string>;
-  devDependencies: Record<string, string>;
-  prisma?: Record<string, string>;
-}
 
 // Needed to resolve __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);

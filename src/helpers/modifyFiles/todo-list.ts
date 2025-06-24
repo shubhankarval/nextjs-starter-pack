@@ -1,9 +1,12 @@
 import path from "path";
 
-import type { FileProps } from "../../types.js";
+import type { ScaffoldContext } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
-type TodoListProps = Pick<FileProps, "darkMode" | "rhf" | "state" | "tempDir">;
+type TodoListProps = Pick<
+  ScaffoldContext,
+  "darkMode" | "rhf" | "state" | "tempDir"
+>;
 
 export const modifyTodoList = async ({
   darkMode,

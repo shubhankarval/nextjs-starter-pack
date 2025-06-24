@@ -1,10 +1,10 @@
 import path from "path";
 
-import type { FileProps } from "../../types.js";
+import type { ScaffoldContext } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
 type LayoutProps = Pick<
-  FileProps,
+  ScaffoldContext,
   "darkMode" | "tanstackQuery" | "state" | "auth" | "tempDir"
 >;
 

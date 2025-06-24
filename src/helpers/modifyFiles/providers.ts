@@ -1,11 +1,11 @@
 import path from "path";
 import fs from "fs-extra";
 
-import type { FileProps } from "../../types.js";
+import type { ScaffoldContext } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
 type ProvidersProps = Pick<
-  FileProps,
+  ScaffoldContext,
   "darkMode" | "tanstackQuery" | "state" | "tempDir"
 >;
 

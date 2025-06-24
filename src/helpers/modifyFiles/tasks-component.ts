@@ -1,9 +1,9 @@
 import path from "path";
 
-import type { FileProps } from "../../types.js";
+import type { ScaffoldContext } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
-type TasksComponentProps = Pick<FileProps, "state" | "tempDir">;
+type TasksComponentProps = Pick<ScaffoldContext, "state" | "tempDir">;
 
 export const modifyTasksComponent = async ({
   state,
