@@ -5,6 +5,7 @@ export interface Options {
   state?: "zustand" | "jotai";
   prisma?: boolean;
   auth?: "authjs" | "clerk";
+  skipInstall?: boolean;
 }
 
 export interface ScaffoldContext extends Options {

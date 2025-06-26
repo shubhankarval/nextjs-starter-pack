@@ -1,5 +1,8 @@
+import fs from "fs-extra";
+import path from "path";
+
 import deps from "../dependencies.json" with { type: "json" };
-import type { ScaffoldContext } from "../types.js";
+import type { ScaffoldContext, PackageJson } from "../types.js";
 
 type OptionKey = {
   key: keyof typeof deps.optionalDeps;
@@ -17,7 +20,7 @@ const optionKeys: OptionKey[] = [
   { key: "clerk", selected: (options) => options.auth === "clerk" },
 ];
 
-export const addDependencies = (options: ScaffoldContext) => {
+export const addDependencies = (options: ScaffoldContext, pkg: PackageJson) => {
   let dependencies = { ...deps.dependencies };
   let devDependencies = { ...deps.devDependencies };
 
@@ -33,10 +36,32 @@ export const addDependencies = (options: ScaffoldContext) => {
     }
   }
 
-  return {
-    dependencies: sortObject(dependencies),
-    devDependencies: sortObject(devDependencies),
-  };
+  pkg.dependencies = sortObject(dependencies);
+  pkg.devDependencies = sortObject(devDependencies);
+  if (options.prisma) {
+    pkg.prisma = { seed: "tsx prisma/seed.ts" };
+  }
+};
+
+// For skip install flag - only add deps needed for running commands
+export const addRunDependencies = async (
+  options: ScaffoldContext,
+  mainDir: string,
+  tempDir: string
+) => {
+  const _pkg = (await fs.readJson(
+    path.join(mainDir, "_package.json")
+  )) as PackageJson;
+
+  if (options.prisma) {
+    Object.assign(_pkg.dependencies, deps.optionalDeps.prisma.deps);
+    Object.assign(_pkg.devDependencies, deps.optionalDeps.prisma.devDeps);
+    _pkg.prisma = { seed: "tsx prisma/seed.ts" };
+  }
+
+  await fs.writeJson(path.join(tempDir, "_package.json"), _pkg, {
+    spaces: 2,
+  });
 };
 
 function sortObject(obj: Record<string, string>) {

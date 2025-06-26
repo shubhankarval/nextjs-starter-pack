@@ -16,11 +16,15 @@ import type {
   PackageJson,
   ScaffoldContext,
 } from "./types.js";
-import { addDependencies } from "./helpers/deps.js";
+import { addDependencies, addRunDependencies } from "./helpers/deps.js";
 import { addFiles } from "./helpers/addFiles.js";
 import { modifyFiles } from "./helpers/modifyFiles/index.js";
-import { installDependencies, setupPrisma } from "./helpers/run.js";
-import { getPackageManager } from "./helpers/utils.js";
+import {
+  installDependencies,
+  formatFiles,
+  setupPrisma,
+} from "./helpers/run.js";
+import { getPackageManager, swapPackageJsonFiles } from "./helpers/utils.js";
 
 // Needed to resolve __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -47,6 +51,7 @@ program
     "-a, --auth <library>",
     "Choose authentication library (authjs, clerk)"
   )
+  .option("-i, --skip-install", "Skip installing dependencies")
   .parse(process.argv);
 
 export const createApp = async (): Promise<void> => {
@@ -79,8 +84,9 @@ export const createApp = async (): Promise<void> => {
       throw new Error(`Invalid authentication library: ${options.auth}`);
     }
 
-    const packageJsonPath = path.join(mainDir, "package.json");
-    const pkg = (await fs.readJson(packageJsonPath)) as PackageJson;
+    const pkg = (await fs.readJson(
+      path.join(mainDir, "package.json")
+    )) as PackageJson;
 
     // Project name
     if (!projectName) {
@@ -175,6 +181,13 @@ export const createApp = async (): Promise<void> => {
         default: "authjs",
         when: () => !options.auth,
       },
+      {
+        type: "confirm",
+        name: "skipInstall",
+        message: "Do you want to skip installing dependencies?",
+        default: false,
+        when: () => !options.skipInstall,
+      },
     ]);
 
     // spinner for file operations
@@ -189,6 +202,7 @@ export const createApp = async (): Promise<void> => {
     const state = options.state || prompts.state;
     const prisma = options.prisma || prompts.prisma;
     const auth = options.auth || prompts.auth;
+    const skipInstall = options.skipInstall || prompts.skipInstall;
 
     const params: ScaffoldContext = {
       darkMode,
@@ -201,20 +215,20 @@ export const createApp = async (): Promise<void> => {
       tempDir,
     };
 
-    // Add dependencies based on user input
-    const { dependencies, devDependencies } = addDependencies(params);
-    pkg.dependencies = dependencies;
-    pkg.devDependencies = devDependencies;
-    if (prisma) {
-      pkg.prisma = { seed: "tsx prisma/seed.ts" };
-    }
-
     // Copy from main to temp directory
     await fs.copy(mainDir, tempDir);
 
-    await fs.writeJson(path.join(tempDir, "package.json"), pkg, {
-      spaces: 2,
-    });
+    // Add dependencies based on user input
+    if (skipInstall) {
+      await addRunDependencies(params, mainDir, tempDir);
+      await swapPackageJsonFiles(tempDir);
+    } else {
+      addDependencies(params, pkg);
+      await fs.writeJson(path.join(tempDir, "package.json"), pkg, {
+        spaces: 2,
+      });
+      await fs.remove(path.join(tempDir, "_package.json"));
+    }
 
     // Add/overwrite/modify files based on user input
     await addFiles(params);
@@ -222,30 +236,57 @@ export const createApp = async (): Promise<void> => {
 
     // Move files from temp to destination directory
     await fs.move(tempDir, destDir);
-
-    // Clean up
     await fs.remove(tempDir);
 
-    spinner.succeed(
-      chalk.green(`Project ${chalk.bold(projectName)} created successfully!`)
-    );
+    if (!skipInstall) {
+      spinner.succeed(
+        chalk.green(`Project ${chalk.bold(projectName)} created successfully!`)
+      );
+    }
 
-    // Setup dependencies and format files
+    // Install dependencies
     const packageManager = getPackageManager();
-    await installDependencies(destDir, packageManager);
+    await installDependencies(destDir, packageManager, !!skipInstall);
+    if (skipInstall) {
+      await swapPackageJsonFiles(destDir);
+      await fs.remove(path.join(destDir, "_package.json"));
+
+      addDependencies(params, pkg);
+      await fs.writeJson(path.join(destDir, "package.json"), pkg, {
+        spaces: 2,
+      });
+
+      spinner.succeed(
+        chalk.green(`Project ${chalk.bold(projectName)} created successfully!`)
+      );
+    }
+
+    // Format files and run optional commands
+    await formatFiles(destDir, packageManager);
     prisma && (await setupPrisma(destDir, packageManager));
 
     // Final success message
     console.log("\n" + chalk.bgCyan.black(" NEXT STEPS ") + "\n");
     console.log(`  ${chalk.cyan("1.")} ${chalk.bold(`cd ${projectName}`)}`);
-    console.log(
-      `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} run dev`)}`
-    );
-    auth &&
+    if (skipInstall) {
       console.log(
-        `  ${chalk.cyan("3.")} ${chalk.bold("set up your auth provider")}`
+        `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} install`)}`
       );
-
+      console.log(
+        `  ${chalk.cyan("3.")} ${chalk.bold(`${packageManager} run dev`)}`
+      );
+    } else {
+      console.log(
+        `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} run dev`)}`
+      );
+    }
+    if (auth) {
+      console.log(
+        `  ${chalk.cyan(skipInstall ? "4." : "3.")} ${chalk.bold(
+          "set up your auth provider"
+        )}`
+      );
+    }
     console.log("\n" + chalk.green("Happy coding!🚀") + "\n");
   } catch (err: any) {
     // Clean up

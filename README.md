@@ -58,6 +58,7 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 | `-s, --state <library>` | State management with `zustand` or `jotai` |
 | `-p, --prisma`          | Prisma ORM                                 |
 | `-a, --auth <library>`  | Authentication with `authjs` or `clerk`    |
+| `-i, --skip-install`    | Skip installing dependencies               |
 
 ## 🛣️ Roadmap
 
