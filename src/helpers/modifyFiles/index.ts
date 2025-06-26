@@ -1,4 +1,4 @@
-import type { FileProps } from "../../types.js";
+import type { ScaffoldContext } from "../../types.js";
 import { modifyProviders } from "./providers.js";
 import { modifyLayout } from "./layout.js";
 import { modifyTasksComponent } from "./tasks-component.js";
@@ -14,7 +14,7 @@ export async function modifyFiles({
   prisma,
   auth,
   tempDir,
-}: FileProps) {
+}: ScaffoldContext) {
   // Modify files based on options
 
   await modifyProviders({

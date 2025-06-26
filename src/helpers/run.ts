@@ -9,53 +9,76 @@ const execAsync = promisify(exec);
 
 export async function installDependencies(
   destDir: string,
-  packageManager: PackageManager
+  packageManager: PackageManager,
+  skipInstall: boolean
 ) {
-  console.log("");
   const installSpinner = ora({
     text: chalk.cyan(
       "📦 Installing dependencies (this may take up to a minute)...\n"
     ),
     color: "cyan",
-  }).start();
+  });
+  if (!skipInstall) {
+    console.log("");
+    installSpinner.start();
+  }
 
   try {
     // Install dependencies
     process.chdir(destDir);
-    if (packageManager === "yarn") {
-      await execAsync("yarn");
-    } else if (packageManager === "pnpm") {
-      await execAsync("pnpm install");
-    } else {
-      await execAsync("npm install");
-    }
 
-    installSpinner.succeed(
-      chalk.green(`Dependencies installed with ${packageManager}!`)
-    );
+    if (!skipInstall) {
+      if (packageManager === "yarn") {
+        await execAsync("yarn");
+      } else if (packageManager === "pnpm") {
+        await execAsync("pnpm install");
+      } else {
+        await execAsync("npm install");
+      }
 
-    console.log("");
-    const formatSpinner = ora({
-      text: chalk.cyan("🛠️  Formatting files..."),
-      color: "cyan",
-    }).start();
-
-    try {
-      await execAsync(`${packageManager} run format`);
-
-      formatSpinner.succeed(chalk.green("Files formatted successfully!"));
-    } catch (err) {
-      formatSpinner.warn(
-        chalk.yellow(
-          "Failed to run Prettier. You can run it manually with `npx prettier --write .`"
-        )
+      installSpinner.succeed(
+        chalk.green(`Dependencies installed with ${packageManager}!`)
       );
+    } else {
+      if (packageManager === "yarn") {
+        await execAsync("yarn --no-lockfile");
+      } else if (packageManager === "pnpm") {
+        await execAsync("pnpm install --no-lockfile");
+      } else {
+        await execAsync("npm install --no-package-lock");
+      }
     }
   } catch (err) {
-    installSpinner.fail(chalk.red("Failed to install dependencies."));
+    !skipInstall &&
+      installSpinner.fail(chalk.red("Failed to install dependencies."));
     console.log(
       chalk.yellow(
         `Please run 'npm install' inside the project directory manually.`
+      )
+    );
+  }
+}
+
+export async function formatFiles(
+  destDir: string,
+  packageManager: PackageManager
+) {
+  console.log("");
+  const formatSpinner = ora({
+    text: chalk.cyan("🛠️  Formatting files..."),
+    color: "cyan",
+  }).start();
+
+  try {
+    process.chdir(destDir);
+    // Run Prettier to format files
+    await execAsync(`${packageManager} run format`);
+
+    formatSpinner.succeed(chalk.green("Files formatted successfully!"));
+  } catch (err) {
+    formatSpinner.warn(
+      chalk.yellow(
+        "Failed to run Prettier. You can run it manually with `npx prettier --write .`"
       )
     );
   }

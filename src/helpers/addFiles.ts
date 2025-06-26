@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs-extra";
-import type { FileProps, FileMapping } from "../types.js";
+import type { ScaffoldContext, FileMapping } from "../types.js";
 
 export async function addFiles({
   darkMode,
@@ -11,7 +11,7 @@ export async function addFiles({
   auth,
   optionalDir,
   tempDir,
-}: FileProps) {
+}: ScaffoldContext) {
   const fileMap: FileMapping[] = [];
   const commonDir = path.join(optionalDir, "common");
 

@@ -1,9 +1,9 @@
 import path from "path";
 
-import type { FileProps } from "../../types.js";
+import type { ScaffoldContext } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
-type PrismaProps = Pick<FileProps, "state" | "prisma" | "tempDir">;
+type PrismaProps = Pick<ScaffoldContext, "state" | "prisma" | "tempDir">;
 
 export const modifyPrisma = async ({ state, prisma, tempDir }: PrismaProps) => {
   let statePath = "";

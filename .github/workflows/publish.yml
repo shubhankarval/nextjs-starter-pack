@@ -154,10 +154,16 @@ jobs:
           NEW_VERSION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('./package.json', 'utf8')).version)")
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
-          # Commit and tag manually
+          # Commit
           git add package.json package-lock.json
           git commit -m "Bump version to $NEW_VERSION [skip ci]"
-          git tag -a "v$NEW_VERSION" -m "Version $NEW_VERSION"
+
+          # Create tag only if it doesn't already exist
+          if ! git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; then
+            git tag -a "v$NEW_VERSION" -m "Version $NEW_VERSION"
+          else
+            echo "Tag v$NEW_VERSION already exists. Skipping tag creation."
+          fi
 
           # Push changes and tags
           git push --follow-tags

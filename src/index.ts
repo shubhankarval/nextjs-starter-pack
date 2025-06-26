@@ -10,22 +10,21 @@ import figlet from "figlet";
 import chalk from "chalk";
 import { mind } from "gradient-string";
 
-import type { Options } from "./types.js";
+import type {
+  Options,
+  Prompts,
+  PackageJson,
+  ScaffoldContext,
+} from "./types.js";
+import { addDependencies, addRunDependencies } from "./helpers/deps.js";
 import { addFiles } from "./helpers/addFiles.js";
 import { modifyFiles } from "./helpers/modifyFiles/index.js";
-import { installDependencies, setupPrisma } from "./helpers/run.js";
-import { getPackageManager } from "./helpers/utils.js";
-
-interface Prompts extends Options {
-  projectName?: string;
-}
-
-interface PackageJson {
-  name: string;
-  dependencies: Record<string, string>;
-  devDependencies: Record<string, string>;
-  prisma?: Record<string, string>;
-}
+import {
+  installDependencies,
+  formatFiles,
+  setupPrisma,
+} from "./helpers/run.js";
+import { getPackageManager, swapPackageJsonFiles } from "./helpers/utils.js";
 
 // Needed to resolve __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -38,17 +37,21 @@ const tempDir = path.join(os.tmpdir(), `temp-${nanoid()}`);
 const program = new Command();
 program
   .name("nextjs-starter-pack")
-  .argument("[projectName]", "Name of the project")
   .description("Create a Next.js app with a starter pack")
-  .option("--dark-mode", "Include dark mode")
-  .option("--rhf", "Include React Hook Form with Zod")
-  .option("--tanstack-query", "Include TanStack Query")
+  .argument("[projectName]", "Name of your project")
+  .option("-d, --dark-mode", "Add dark mode")
+  .option("-r, --rhf", "Add React Hook Form with Zod")
+  .option("-q, --tanstack-query", "Add TanStack Query")
   .option(
-    "--state <library>",
+    "-s, --state <library>",
     "Choose state management library (zustand, jotai)"
   )
-  .option("--prisma", "Include Prisma ORM")
-  .option("--auth <library>", "Choose authentication library (authjs, clerk)")
+  .option("-p, --prisma", "Add Prisma ORM")
+  .option(
+    "-a, --auth <library>",
+    "Choose authentication library (authjs, clerk)"
+  )
+  .option("-i, --skip-install", "Skip installing dependencies")
   .parse(process.argv);
 
 export const createApp = async (): Promise<void> => {
@@ -71,13 +74,19 @@ export const createApp = async (): Promise<void> => {
 
   try {
     // Validate list options
-    const validStates = ["zustand", "jotai", "none"];
+    const validStates = ["zustand", "jotai"];
     if (options.state && !validStates.includes(options.state)) {
       throw new Error(`Invalid state management library: ${options.state}`);
     }
 
-    const packageJsonPath = path.join(mainDir, "package.json");
-    const pkg = (await fs.readJson(packageJsonPath)) as PackageJson;
+    const validAuth = ["authjs", "clerk"];
+    if (options.auth && !validAuth.includes(options.auth)) {
+      throw new Error(`Invalid authentication library: ${options.auth}`);
+    }
+
+    const pkg = (await fs.readJson(
+      path.join(mainDir, "package.json")
+    )) as PackageJson;
 
     // Project name
     if (!projectName) {
@@ -172,6 +181,13 @@ export const createApp = async (): Promise<void> => {
         default: "authjs",
         when: () => !options.auth,
       },
+      {
+        type: "confirm",
+        name: "skipInstall",
+        message: "Do you want to skip installing dependencies?",
+        default: false,
+        when: () => !options.skipInstall,
+      },
     ]);
 
     // spinner for file operations
@@ -181,56 +197,14 @@ export const createApp = async (): Promise<void> => {
     }).start();
 
     const darkMode = options.darkMode || prompts.darkMode;
-    if (darkMode) {
-      pkg.dependencies["next-themes"] = "^0.4.6";
-    }
-
     const rhf = options.rhf || prompts.rhf;
-    if (rhf) {
-      pkg.dependencies["react-hook-form"] = "^7.56.4";
-      pkg.dependencies["@hookform/resolvers"] = "^5.0.1";
-      pkg.dependencies["zod"] = "^3.24.4";
-      pkg.dependencies["@radix-ui/react-label"] = "^2.1.6";
-    }
-
     const tanstackQuery = options.tanstackQuery || prompts.tanstackQuery;
-    if (tanstackQuery) {
-      pkg.dependencies["@tanstack/react-query"] = "^5.74.4";
-    }
-
     const state = options.state || prompts.state;
-    if (state === "zustand") {
-      pkg.dependencies["zustand"] = "^5.0.3";
-    } else if (state === "jotai") {
-      pkg.dependencies["jotai"] = "^2.12.3";
-    }
-
     const prisma = options.prisma || prompts.prisma;
-    if (prisma) {
-      pkg.dependencies["@prisma/client"] = "^6.7.0";
-      pkg.devDependencies["prisma"] = "^6.7.0";
-      pkg.devDependencies["tsx"] = "^4.19.4";
-      pkg.prisma = {};
-      pkg.prisma.seed = "tsx prisma/seed.ts";
-    }
-
     const auth = options.auth || prompts.auth;
-    if (auth === "authjs") {
-      pkg.dependencies["next-auth"] = "^5.0.0-beta.28";
-    } else if (auth === "clerk") {
-      pkg.dependencies["@clerk/nextjs"] = "^6.22.0";
-    }
+    const skipInstall = options.skipInstall || prompts.skipInstall;
 
-    // Copy from main to temp directory
-    await fs.copy(mainDir, tempDir);
-
-    // Add dependencies based on user input
-    await fs.writeJson(path.join(tempDir, "package.json"), pkg, {
-      spaces: 2,
-    });
-
-    // Add/overwrite/modify files based on user input
-    const props = {
+    const params: ScaffoldContext = {
       darkMode,
       rhf,
       tanstackQuery,
@@ -240,35 +214,79 @@ export const createApp = async (): Promise<void> => {
       optionalDir,
       tempDir,
     };
-    await addFiles(props);
-    await modifyFiles(props);
+
+    // Copy from main to temp directory
+    await fs.copy(mainDir, tempDir);
+
+    // Add dependencies based on user input
+    if (skipInstall) {
+      await addRunDependencies(params, mainDir, tempDir);
+      await swapPackageJsonFiles(tempDir);
+    } else {
+      addDependencies(params, pkg);
+      await fs.writeJson(path.join(tempDir, "package.json"), pkg, {
+        spaces: 2,
+      });
+      await fs.remove(path.join(tempDir, "_package.json"));
+    }
+
+    // Add/overwrite/modify files based on user input
+    await addFiles(params);
+    await modifyFiles(params);
 
     // Move files from temp to destination directory
     await fs.move(tempDir, destDir);
-
-    // Clean up
     await fs.remove(tempDir);
 
-    spinner.succeed(
-      chalk.green(`Project ${chalk.bold(projectName)} created successfully!`)
-    );
+    if (!skipInstall) {
+      spinner.succeed(
+        chalk.green(`Project ${chalk.bold(projectName)} created successfully!`)
+      );
+    }
 
-    // Setup dependencies and format files
+    // Install dependencies
     const packageManager = getPackageManager();
-    await installDependencies(destDir, packageManager);
+    await installDependencies(destDir, packageManager, !!skipInstall);
+    if (skipInstall) {
+      await swapPackageJsonFiles(destDir);
+      await fs.remove(path.join(destDir, "_package.json"));
+
+      addDependencies(params, pkg);
+      await fs.writeJson(path.join(destDir, "package.json"), pkg, {
+        spaces: 2,
+      });
+
+      spinner.succeed(
+        chalk.green(`Project ${chalk.bold(projectName)} created successfully!`)
+      );
+    }
+
+    // Format files and run optional commands
+    await formatFiles(destDir, packageManager);
     prisma && (await setupPrisma(destDir, packageManager));
 
     // Final success message
     console.log("\n" + chalk.bgCyan.black(" NEXT STEPS ") + "\n");
     console.log(`  ${chalk.cyan("1.")} ${chalk.bold(`cd ${projectName}`)}`);
-    console.log(
-      `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} run dev`)}`
-    );
-    auth &&
+    if (skipInstall) {
       console.log(
-        `  ${chalk.cyan("3.")} ${chalk.bold("set up your auth provider")}`
+        `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} install`)}`
       );
-
+      console.log(
+        `  ${chalk.cyan("3.")} ${chalk.bold(`${packageManager} run dev`)}`
+      );
+    } else {
+      console.log(
+        `  ${chalk.cyan("2.")} ${chalk.bold(`${packageManager} run dev`)}`
+      );
+    }
+    if (auth) {
+      console.log(
+        `  ${chalk.cyan(skipInstall ? "4." : "3.")} ${chalk.bold(
+          "set up your auth provider"
+        )}`
+      );
+    }
     console.log("\n" + chalk.green("Happy coding!🚀") + "\n");
   } catch (err: any) {
     // Clean up

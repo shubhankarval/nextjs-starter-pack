@@ -1,9 +1,9 @@
 import path from "path";
 
-import type { FileProps } from "../../types.js";
+import type { ScaffoldContext } from "../../types.js";
 import { replacePlaceholdersInFile } from "../utils.js";
 
-type EnvProps = Pick<FileProps, "prisma" | "auth" | "tempDir">;
+type EnvProps = Pick<ScaffoldContext, "prisma" | "auth" | "tempDir">;
 
 export const modifyEnv = async ({ prisma, auth, tempDir }: EnvProps) => {
   //.env & .env.example
