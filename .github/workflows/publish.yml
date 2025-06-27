@@ -25,12 +25,19 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
 
     steps:
+      - name: Authenticate using GitHub App
+        id: auth
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetch all history for proper diff analysis
           # Add token to allow pushing back to the repository
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.auth.outputs.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -138,18 +145,10 @@ jobs:
             echo "Defaulting to patch version update"
           fi
 
-      - name: Authenticate using GitHub App
-        id: auth
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-
       - name: Set up git config
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          git config --global url."https://x-access-token:${{ steps.auth.outputs.token }}@github.com/".insteadOf "https://github.com/"
 
       # Make sure git is clean before version update
       - name: Clean git state
