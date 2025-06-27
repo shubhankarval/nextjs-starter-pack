@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import path from "path";
 import fetch from "node-fetch";
 
-const filePath = path.resolve("src/dependencies.json");
+const filePath = path.resolve("../src/dependencies.json");
 const registryUrl = (name) => `https://registry.npmjs.org/${name}/latest`;
 
 async function fetchLatestVersion(pkg) {

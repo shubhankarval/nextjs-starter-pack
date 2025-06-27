@@ -1,9 +1,13 @@
-name: Update Dependencies JSON
+name: Update Dependencies
 
 on:
   schedule:
     - cron: "0 0 1 * *" # First of every month at midnight UTC
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   update-deps:
@@ -21,11 +25,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install fs-extra
-
-      - name: Run update script
-        run: node .github/scripts/update-deps.js
+      - name: Run script in isolated env
+        run: |
+          mkdir temp-env
+          cd temp-env
+          npm init -y
+          npm install fs-extra node-fetch
+          cp ../.github/scripts/update-deps.js .
+          node update-deps.js
 
       - name: Create or update PR to develop
         uses: peter-evans/create-pull-request@v5
