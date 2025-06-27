@@ -1,0 +1,39 @@
+name: Update Dependencies JSON
+
+on:
+  schedule:
+    - cron: "0 0 1 * *" # First of every month at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  update-deps:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0 # Required to create PRs
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install fs-extra
+
+      - name: Run update script
+        run: node .github/scripts/update-deps.js
+
+      - name: Create or update PR to develop
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/update-dependencies
+          base: develop
+          title: "chore: update dependencies.json to latest versions"
+          body: "This PR automatically updates dependencies.json to the latest versions."
+          commit-message: "chore: update dependencies.json to latest versions"
+          author: GitHub Actions <github-actions@github.com>
