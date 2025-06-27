@@ -97,13 +97,13 @@ jobs:
           fi
 
           if [ "$REQUIRE_VERSION_UPDATE" = "false" ]; then
-            echo "❌ No version-requiring changes detected. Exiting workflow."
-            exit 1
+            echo "❌ No version-requiring changes detected."
           fi
 
           echo "require_version_update=$REQUIRE_VERSION_UPDATE" >> $GITHUB_OUTPUT
 
       - name: Determine version type from conventional commits
+        if: steps.check-changes.outputs.require_version_update == 'true'
         id: version-type
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
@@ -135,6 +135,7 @@ jobs:
 
       # Make sure git is clean before version update
       - name: Clean git state
+        if: steps.check-changes.outputs.require_version_update == 'true'
         run: |
           git status
           git config --global user.name 'GitHub Actions'
@@ -143,6 +144,7 @@ jobs:
           git stash -u || true
 
       - name: Update package version
+        if: steps.check-changes.outputs.require_version_update == 'true'
         id: update-version
         run: |
           VERSION_TYPE="${{ steps.version-type.outputs.version_type }}"
@@ -171,12 +173,12 @@ jobs:
           echo "Updated to version $NEW_VERSION"
 
       - name: Publish package
+        if: steps.check-changes.outputs.require_version_update == 'true'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Merge main into develop
-        if: success()
         run: |
           git fetch origin develop
           git checkout develop
@@ -186,7 +188,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create notification for successful publish
-        if: success()
+      - name: Notify final status
         run: |
-          echo "✅ Published nextjs-starter-pack v${{ steps.update-version.outputs.new_version }} to npm"
+          if [[ "${{ steps.check-changes.outputs.require_version_update }}" == "true" ]]; then
+            echo "✅ Published nextjs-starter-pack v${{ steps.update-version.outputs.new_version }} to npm"
+          else
+            echo "ℹ️ No version bump required. Workflow finished without publishing."
+          fi
