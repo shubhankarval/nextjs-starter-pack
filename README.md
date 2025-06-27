@@ -6,9 +6,15 @@
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Tailwind-4.x-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind" />
   <br />
-  <img src="https://img.shields.io/badge/TanStack_Query-5.x-FF4154?style=for-the-badge&logo=react-query" alt="TanStack Query" />
+  <img src="https://img.shields.io/badge/TanStack_Query-5.x-FF4154?style=for-the-badge&logo=reactquery" alt="TanStack Query" />
   <img src="https://img.shields.io/badge/React_Hook_Form-7.x-EC5990?style=for-the-badge&logo=react-hook-form" alt="React Hook Form" />
-  <img src="https://img.shields.io/badge/Zod-Latest-3068B7?style=for-the-badge" alt="Zod" />
+  <img src="https://img.shields.io/badge/Zod-3.x-3068B7?style=for-the-badge&logo=zod" alt="Zod" />
+  <img src="https://img.shields.io/badge/Auth.js-5.x-fb7d05?style=for-the-badge" alt="Auth.js" />
+  <br />
+  <img src="https://img.shields.io/badge/Clerk-6.x-aa9dec?style=for-the-badge&logo=clerk" alt="Clerk" />
+  <img src="https://img.shields.io/badge/Prisma-6.7-0a3953?style=for-the-badge&logo=prisma" alt="Prisma" />
+  <img src="https://img.shields.io/badge/Zustand-5.x-433e38?style=for-the-badge" alt="Zustand" />
+  <img src="https://img.shields.io/badge/Jotai-2.x-f2f2f2?style=for-the-badge" alt="Jotai" />
 </div>
 
 <p align="center">
@@ -37,15 +43,15 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 - 🎨 **Tailwind CSS v4**
 - 🌓 **Dark Mode (next-themes)**
 - 🧩 **Shadcn UI**
-- 🖼️ **Lucide Icons**
 - 🛠️ **ESLint and Prettier**
-- 📦 **Import Aliases**
 - 📊 **TanStack Query**
 - 📋 **React Hook Form**
 - 🛡️ **Zod Validation**
 - 🔄 **Zustand / Jotai**
 - 📁 **Prisma ORM**
 - 🔐 **Auth.js / Clerk**
+- 🖼️ **Lucide Icons**
+- 📦 **Import Aliases**
 
 ## 🛠️ CLI Options
 
