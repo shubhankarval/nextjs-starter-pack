@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   update-deps:
@@ -24,11 +25,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install fs-extra node-fetch
-
-      - name: Run update script
-        run: node .github/scripts/update-deps.js
+      - name: Run script in isolated env
+        run: |
+          mkdir temp-env
+          cd temp-env
+          npm init -y
+          npm install fs-extra node-fetch
+          node ../.github/scripts/update-deps.js
 
       - name: Create or update PR to develop
         uses: peter-evans/create-pull-request@v5
