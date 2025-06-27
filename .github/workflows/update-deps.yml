@@ -34,10 +34,17 @@ jobs:
           cp ../.github/scripts/update-deps.js .
           node update-deps.js
 
+      - name: Authenticate using GitHub App
+        id: auth
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
       - name: Create or update PR to develop
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.auth.outputs.token }}
           branch: chore/update-dependencies
           base: develop
           title: "chore: update dependencies.json to latest versions"

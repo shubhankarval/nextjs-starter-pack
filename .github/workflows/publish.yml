@@ -143,6 +143,13 @@ jobs:
           # Stash any changes that might be causing the "not clean" state
           git stash -u || true
 
+      - name: Authenticate using GitHub App
+        id: auth
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
       - name: Update package version
         if: steps.check-changes.outputs.require_version_update == 'true'
         id: update-version
@@ -171,6 +178,8 @@ jobs:
           git push --follow-tags
 
           echo "Updated to version $NEW_VERSION"
+        env:
+          GITHUB_TOKEN: ${{ steps.auth.outputs.token }}
 
       - name: Publish package
         if: steps.check-changes.outputs.require_version_update == 'true'
@@ -186,7 +195,7 @@ jobs:
           git push origin develop
           echo "Merged main into develop branch"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.auth.outputs.token }}
 
       - name: Notify final status
         run: |
