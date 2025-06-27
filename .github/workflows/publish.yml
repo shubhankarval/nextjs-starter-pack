@@ -149,7 +149,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          git remote set-url origin https://x-access-token:${{ steps.auth.outputs.token }}@github.com/${{ github.repository }}
+          git config --global url."https://x-access-token:${{ steps.auth.outputs.token }}@github.com/".insteadOf "https://github.com/"
 
       # Make sure git is clean before version update
       - name: Clean git state
