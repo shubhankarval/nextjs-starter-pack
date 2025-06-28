@@ -66,6 +66,21 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 | `-a, --auth <library>`  | Authentication with `authjs` or `clerk`    |
 | `-i, --skip-install`    | Skip installing dependencies               |
 
+## 📁 Project Structure
+
+```py
+my-app/
+├── src/
+│   ├── app/           # App router (layout, routes, API)
+│   ├── components/    # Reusable UI (Shadcn UI)
+│   ├── actions/       # Server actions
+│   ├── store/         # Zustand/Jotai
+│   ├── lib/           # Helpers & utils
+│   └── context/       # Context providers
+├── prisma/            # DB schema & seeding
+└── config + setup     # ESLint, Prettier, TypeScript, etc.
+```
+
 ## 🛣️ Roadmap
 
 - [ ] 📁 Drizzle ORM
@@ -78,21 +93,6 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 - [ ] 🎭 Storybook - Component documentation
 - [ ] 🔄 CI/CD
 - [ ] 📧 Email templates and sending capabilities
-
-## 📁 Project Structure
-
-```py
-my-app/
-├── prisma/            # DB schema & seeding
-├── src/
-│   ├── app/           # App router (layout, routes, API)
-│   ├── components/    # Reusable UI (Shadcn UI)
-│   ├── actions/       # Server actions
-│   ├── store/         # Zustand/Jotai
-│   ├── lib/           # Helpers & utils
-│   └── context/       # Context providers
-└── config + setup     # ESLint, Prettier, TypeScript, etc.
-```
 
 ## 👥 Contributing
 

@@ -157,6 +157,7 @@ export async function addFiles({
     }
   }
 
+  // components/greeting.tsx
   if (tanstackQuery || auth) {
     const tanstackQueryDir = path.join(optionalDir, "tanstack-query");
     const authJSDir = path.join(optionalDir, "authjs");
