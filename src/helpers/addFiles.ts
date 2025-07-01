@@ -134,27 +134,6 @@ export async function addFiles({
     }
   }
 
-  // components/greeting.tsx
-  if (tanstackQuery || auth) {
-    const tanstackQueryDir = path.join(optionalDir, "tanstack-query");
-    const authJSDir = path.join(optionalDir, "authjs");
-    const clerkDir = path.join(optionalDir, "clerk");
-
-    const greetingDir =
-      auth === "authjs"
-        ? authJSDir
-        : auth === "clerk"
-        ? clerkDir
-        : tanstackQueryDir;
-    const greetingFile =
-      auth && tanstackQuery ? "greeting-tanstack.tsx" : "greeting.tsx";
-
-    fileMap.push({
-      src: path.join(greetingDir, greetingFile),
-      dest: path.join(tempDir, "src/components/greeting.tsx"),
-    });
-  }
-
   // copy files in parallel
   await Promise.all(
     fileMap.map(({ src, dest }) => fs.copy(src, dest, { overwrite: true }))

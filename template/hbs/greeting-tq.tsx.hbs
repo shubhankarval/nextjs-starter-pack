@@ -1,0 +1,91 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+{{#if (eq auth 'authjs')}}
+import { SessionProvider, useSession } from "next-auth/react";
+{{else if (eq auth 'clerk')}}
+import { useUser } from '@clerk/nextjs';
+{{/if}}
+import he from 'he';
+
+type HelloResponse = {
+  code: string;
+  hello: string;
+};
+
+type IPResponse = {
+  ip: string;
+};
+
+{{#if (eq auth 'authjs')}}
+function RenderGreeting() {
+{{else}}
+export function Greeting() {
+{{/if}}
+  {{#if (eq auth 'authjs')}}
+  const { data: session } = useSession();
+  const name = session?.user?.name ? ` ${session.user.name.split(" ")[0]}` : "";
+  {{else if (eq auth 'clerk')}}
+  const { user } = useUser();
+  const name = user?.firstName ? ` ${user.firstName}` : "";
+  {{/if}}
+
+  const {
+    data: greeting,
+    isPending,
+    isError,
+  } = useQuery({
+    queryKey: ['greeting'{{#if auth}}, name{{/if}}],
+    queryFn: {{#if auth}}() => fetchGreeting(name),{{else}}fetchGreeting,{{/if}}
+  });
+
+  return (
+    <h1 className="text-foreground text-2xl font-bold">
+      {{#if auth}}
+      {!isPending && (isError ? `Hello${name}!` : greeting)}
+      {{else}}
+      {!isPending && (isError ? 'Hello!' : greeting)}
+      {{/if}}
+    </h1>
+  );
+}
+
+async function fetchGreeting({{#if auth}}name: string{{/if}}): Promise<string> {
+  const params = new URLSearchParams();
+  const langCode = navigator.language;
+
+  if (langCode) {
+    params.set('lang', langCode.startsWith('en') ? 'en' : langCode);
+  } else {
+    const ipRes = await fetch('https://get.geojs.io/v1/ip.json');
+    const ipData: IPResponse = await ipRes.json();
+    if (ipData.ip) {
+      params.set('ip', ipData.ip);
+    }
+  }
+
+  if (params.size) {
+    const res = await fetch(`https://hellosalut.stefanbohacek.dev/?${params}`);
+    const data: HelloResponse = await res.json();
+    {{#if auth}}
+    return he.decode(data.hello) + name + '!';
+    {{else}}
+    return he.decode(data.hello) + '!';
+    {{/if}}
+  }
+  {{#if auth}}
+  return `Hello${name}!`;
+  {{else}}
+  return 'Hello!';
+  {{/if}}
+}
+
+{{#if (eq auth 'authjs')}}
+export function Greeting() {
+  return (
+    <SessionProvider>
+      <RenderGreeting />
+    </SessionProvider>
+  );
+}
+{{/if}}

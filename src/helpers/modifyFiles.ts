@@ -46,6 +46,10 @@ export const modifyFiles = async (ctx: ScaffoldContext) => {
           ? "src/store/task-atoms.ts"
           : "src/context/task-context.tsx",
     },
+    {
+      src: !ctx.tanstackQuery ? "greeting.tsx.hbs" : "greeting-tq.tsx.hbs",
+      dest: "src/components/greeting.tsx",
+    },
   ].filter(Boolean) as FileMapping[];
 
   handlebars.registerHelper({
