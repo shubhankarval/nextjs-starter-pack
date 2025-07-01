@@ -1,21 +1,13 @@
 import path from "path";
 import fs from "fs-extra";
-import type { ScaffoldContext, FileMapping } from "../types.js";
+import type { Options, Dirs, FileMapping } from "../types.js";
 
-export async function addFiles({
-  darkMode,
-  rhf,
-  tanstackQuery,
-  state,
-  prisma,
-  auth,
-  optionalDir,
-  tempDir,
-}: ScaffoldContext) {
+export async function addFiles(options: Options, dirs: Dirs) {
   const fileMap: FileMapping[] = [];
+  const { optionalDir, tempDir } = dirs;
   const commonDir = path.join(optionalDir, "common");
 
-  if (darkMode) {
+  if (options.darkMode) {
     const darkModeDir = path.join(optionalDir, "dark-mode");
 
     fileMap.push(
@@ -30,7 +22,7 @@ export async function addFiles({
     );
   }
 
-  if (rhf) {
+  if (options.rhf) {
     const rhfDir = path.join(optionalDir, "react-hook-form");
 
     fileMap.push(
@@ -45,7 +37,7 @@ export async function addFiles({
     );
   }
 
-  if (tanstackQuery) {
+  if (options.tanstackQuery) {
     const tanstackQueryDir = path.join(optionalDir, "tanstack-query");
 
     fileMap.push({
@@ -54,7 +46,7 @@ export async function addFiles({
     });
   }
 
-  if (state) {
+  if (options.state) {
     fileMap.push({
       src: path.join(commonDir, "tsconfig.json"),
       dest: path.join(tempDir, "tsconfig.json"),
@@ -65,7 +57,7 @@ export async function addFiles({
     await fs.ensureDir(path.join(tempDir, "src/context"));
   }
 
-  if (prisma) {
+  if (options.prisma) {
     const prismaDir = path.join(optionalDir, "prisma");
 
     fileMap.push(
@@ -95,13 +87,13 @@ export async function addFiles({
     await fs.remove(path.join(tempDir, "src/types.ts"));
   }
 
-  if (auth) {
+  if (options.auth) {
     fileMap.push({
       src: path.join(commonDir, "page.tsx"),
       dest: path.join(tempDir, "src/app/page.tsx"),
     });
 
-    if (auth === "authjs") {
+    if (options.auth === "authjs") {
       const authJSDir = path.join(optionalDir, "authjs");
 
       fileMap.push(
@@ -118,7 +110,7 @@ export async function addFiles({
           dest: path.join(tempDir, "src/components/auth.tsx"),
         }
       );
-    } else if (auth === "clerk") {
+    } else if (options.auth === "clerk") {
       const clerkDir = path.join(optionalDir, "clerk");
 
       fileMap.push(

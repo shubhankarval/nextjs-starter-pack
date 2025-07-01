@@ -8,14 +8,15 @@ export interface Options {
   skipInstall?: boolean;
 }
 
-export interface ScaffoldContext extends Options {
+export interface Prompts extends Options {
+  projectName?: string;
+}
+
+export interface Dirs {
+  mainDir: string;
   optionalDir: string;
   tempDir: string;
   hbsDir: string;
-}
-
-export interface Prompts extends Options {
-  projectName?: string;
 }
 
 export interface FileMapping {

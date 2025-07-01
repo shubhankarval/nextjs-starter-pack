@@ -2,10 +2,11 @@ import handlebars from "handlebars";
 import path from "path";
 import fs from "fs-extra";
 
-import type { ScaffoldContext, FileMapping } from "../types.js";
+import type { Options, Dirs, FileMapping } from "../types.js";
 
-export const modifyFiles = async (ctx: ScaffoldContext) => {
-  const useProviders = !ctx.state || ctx.darkMode || ctx.tanstackQuery;
+export const modifyFiles = async (options: Options, dirs: Dirs) => {
+  const useProviders =
+    !options.state || options.darkMode || options.tanstackQuery;
 
   const fileMap = [
     {
@@ -34,20 +35,20 @@ export const modifyFiles = async (ctx: ScaffoldContext) => {
     },
     {
       src:
-        ctx.state === "zustand"
+        options.state === "zustand"
           ? "task-store.ts.hbs"
-          : ctx.state === "jotai"
+          : options.state === "jotai"
           ? "task-atoms.ts.hbs"
           : "task-context.tsx.hbs",
       dest:
-        ctx.state === "zustand"
+        options.state === "zustand"
           ? "src/store/task-store.ts"
-          : ctx.state === "jotai"
+          : options.state === "jotai"
           ? "src/store/task-atoms.ts"
           : "src/context/task-context.tsx",
     },
     {
-      src: !ctx.tanstackQuery ? "greeting.tsx.hbs" : "greeting-tq.tsx.hbs",
+      src: !options.tanstackQuery ? "greeting.tsx.hbs" : "greeting-tq.tsx.hbs",
       dest: "src/components/greeting.tsx",
     },
   ].filter(Boolean) as FileMapping[];
@@ -60,12 +61,12 @@ export const modifyFiles = async (ctx: ScaffoldContext) => {
   });
 
   fileMap.forEach(async ({ src, dest }) => {
-    const srcPath = path.join(ctx.hbsDir, src);
-    const destPath = path.join(ctx.tempDir, dest);
+    const srcPath = path.join(dirs.hbsDir, src);
+    const destPath = path.join(dirs.tempDir, dest);
 
     let content = await fs.readFile(srcPath, "utf8");
     content = handlebars.compile(content)({
-      ...ctx,
+      ...options,
       useProviders,
     });
 

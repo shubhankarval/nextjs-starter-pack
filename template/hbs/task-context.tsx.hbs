@@ -22,11 +22,11 @@ interface TaskContextType {
   {{#if rhf}}
   addTask: (val: string) => void;
   {{else}}
+  addTask: () => void;
   newTask: string;
   setNewTask: (val: string) => void;
   {{/if}}
   setFilter: (val: Filter) => void;
-  addTask: () => void;
   deleteTask: (id: string) => void;
   toggleComplete: (id: string) => void;
 }
