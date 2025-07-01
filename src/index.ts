@@ -18,7 +18,7 @@ import type {
 } from "./types.js";
 import { addDependencies, addRunDependencies } from "./helpers/deps.js";
 import { addFiles } from "./helpers/addFiles.js";
-import { modifyFiles } from "./helpers/modifyFiles/index.js";
+import { modifyFiles } from "./helpers/modifyFiles.js";
 import {
   installDependencies,
   formatFiles,
@@ -32,6 +32,7 @@ const __dirname = path.dirname(__filename);
 
 const mainDir = path.join(__dirname, "../template/main");
 const optionalDir = path.join(__dirname, "../template/optional");
+const hbsDir = path.join(__dirname, "../template/hbs");
 const tempDir = path.join(os.tmpdir(), `temp-${nanoid()}`);
 
 const program = new Command();
@@ -213,6 +214,7 @@ export const createApp = async (): Promise<void> => {
       auth,
       optionalDir,
       tempDir,
+      hbsDir,
     };
 
     // Copy from main to temp directory

@@ -11,6 +11,7 @@ export interface Options {
 export interface ScaffoldContext extends Options {
   optionalDir: string;
   tempDir: string;
+  hbsDir: string;
 }
 
 export interface Prompts extends Options {

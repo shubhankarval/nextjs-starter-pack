@@ -43,13 +43,6 @@ export async function addFiles({
         dest: path.join(tempDir, "src/components/ui/label.tsx"),
       }
     );
-
-    if (!state) {
-      fileMap.push({
-        src: path.join(rhfDir, "task-context-rhf.tsx"),
-        dest: path.join(tempDir, "src/context/task-context.tsx"),
-      });
-    }
   }
 
   if (tanstackQuery) {
@@ -68,24 +61,8 @@ export async function addFiles({
     });
     await fs.ensureDir(path.join(tempDir, "src/store"));
     await fs.remove(path.join(tempDir, "src/context"));
-
-    if (state === "zustand") {
-      const zustandDir = path.join(optionalDir, "zustand");
-      const zustandFile = rhf ? "task-store-rhf.ts" : "task-store.ts";
-
-      fileMap.push({
-        src: path.join(zustandDir, zustandFile),
-        dest: path.join(tempDir, "src/store/task-store.ts"),
-      });
-    } else if (state === "jotai") {
-      const jotaiDir = path.join(optionalDir, "jotai");
-      const jotaiFile = rhf ? "task-atoms-rhf.ts" : "task-atoms.ts";
-
-      fileMap.push({
-        src: path.join(jotaiDir, jotaiFile),
-        dest: path.join(tempDir, "src/store/task-atoms.ts"),
-      });
-    }
+  } else {
+    await fs.ensureDir(path.join(tempDir, "src/context"));
   }
 
   if (prisma) {

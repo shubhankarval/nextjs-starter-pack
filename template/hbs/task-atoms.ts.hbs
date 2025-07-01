@@ -1,26 +1,33 @@
-import { atom } from "jotai";
+import { atom } from 'jotai';
 
-{{IMPORT}}
+{{#if prisma}}
+import { Task } from '@prisma/client';
+{{else}}
+import { Task } from '@/types';
+{{/if}}
 import {
   getAllTasks,
   addTaskToDB,
   deleteTaskFromDB,
   toggleTaskCompletionInDB,
-} from "@actions/tasks";
+} from '@actions/tasks';
 
-export type Filter = "all" | "active" | "done";
+export type Filter = 'all' | 'active' | 'done';
 
 // Primitive atoms
 export const tasksAtom = atom<Task[]>([]);
-export const filterAtom = atom<Filter>("all");
+{{#unless rhf}}
+export const newTaskAtom = atom<string>('');
+{{/unless}}
+export const filterAtom = atom<Filter>('all');
 export const loadingAtom = atom<boolean>(true);
 
 // Derived atom to get filtered tasks
 export const filteredTasksAtom = atom((get) => {
   const tasks = get(tasksAtom);
   const filter = get(filterAtom);
-  if (filter === "active") return tasks.filter((t) => !t.completed);
-  if (filter === "done") return tasks.filter((t) => t.completed);
+  if (filter === 'active') return tasks.filter((t) => !t.completed);
+  if (filter === 'done') return tasks.filter((t) => t.completed);
   return tasks;
 });
 
@@ -32,6 +39,7 @@ export const fetchTasksAtom = atom(null, async (_, set) => {
 });
 
 // Task management atoms
+{{#if rhf}}
 export const addTaskAtom = atom(null, async (get, set, newTaskName: string) => {
   const text = newTaskName.trim();
   if (!text) return;
@@ -45,11 +53,27 @@ export const addTaskAtom = atom(null, async (get, set, newTaskName: string) => {
   set(tasksAtom, [...get(tasksAtom), newTask]);
   await addTaskToDB(newTask);
 });
+{{else}}
+export const addTaskAtom = atom(null, async (get, set) => {
+  const text = get(newTaskAtom).trim();
+  if (!text) return;
+
+  const newTask: Task = {
+    id: crypto.randomUUID(),
+    text,
+    completed: false,
+  };
+
+  set(tasksAtom, [...get(tasksAtom), newTask]);
+  set(newTaskAtom, '');
+  await addTaskToDB(newTask);
+});
+{{/if}}
 
 export const deleteTaskAtom = atom(null, async (get, set, id: string) => {
   set(
     tasksAtom,
-    get(tasksAtom).filter((task) => task.id !== id)
+    get(tasksAtom).filter((task) => task.id !== id),
   );
   await deleteTaskFromDB(id);
 });
@@ -58,8 +82,8 @@ export const toggleCompleteAtom = atom(null, async (get, set, id: string) => {
   set(
     tasksAtom,
     get(tasksAtom).map((task) =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    )
+      task.id === id ? { ...task, completed: !task.completed } : task,
+    ),
   );
   await toggleTaskCompletionInDB(id);
 });
