@@ -104,6 +104,10 @@ Contributions are welcome! Here's how you can help:
 4. Open a Pull Request to `develop`
 
 Please make sure to follow the existing code style of the project.
+
+### Development & Testing
+
+For local development and testing, see the [`nextjs-starter-app`](https://github.com/shubhankarval/nextjs-starter-app) repository - a reference implementation showcasing the output of this starter pack.
 <br/>
 <br/>
 

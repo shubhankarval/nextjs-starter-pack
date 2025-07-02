@@ -1,22 +1,10 @@
-This is a [Next.js](https://nextjs.org) project powered by [`nextjs-starter-pack`](https://www.npmjs.com/package/nextjs-starter-pack).
+This is a [Next.js](https://nextjs.org) project created with [`nextjs-starter-pack`](https://www.npmjs.com/package/nextjs-starter-pack).
 
 This starter has batteries-included support for modern tools like **React 19**, **TypeScript**, **Tailwind CSS** and more – all fully configured and production-ready.
 
 ## Getting Started
 
-First, install the dependencies:
-
-```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-# or
-bun install
-```
-
-Then, run the development server:
+First, run the development server:
 
 ```bash
 npm run dev
@@ -28,7 +16,7 @@ pnpm dev
 bun dev
 ```
 
-Now open your browser to [http://localhost:3000](http://localhost:3000) 
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Scripts
 
