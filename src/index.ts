@@ -14,11 +14,7 @@ import type { Options, Prompts, PackageJson, Dirs } from "./types.js";
 import { addDependencies, addRunDependencies } from "./helpers/deps.js";
 import { addFiles } from "./helpers/addFiles.js";
 import { modifyFiles } from "./helpers/modifyFiles.js";
-import {
-  installDependencies,
-  formatFiles,
-  setupPrisma,
-} from "./helpers/run.js";
+import { installDependencies, formatFiles, setupORM } from "./helpers/run.js";
 import { getPackageManager, swapPackageJsonFiles } from "./helpers/utils.js";
 
 // Needed to resolve __dirname in ESM
@@ -42,7 +38,7 @@ program
     "-s, --state <library>",
     "Choose state management library (zustand, jotai)"
   )
-  .option("-p, --prisma", "Add Prisma ORM")
+  .option("-o, --orm <library>", "Choose ORM library (prisma, drizzle)")
   .option(
     "-a, --auth <library>",
     "Choose authentication library (authjs, clerk)"
@@ -150,11 +146,25 @@ export const createApp = async (): Promise<void> => {
         when: () => !options.state,
       },
       {
-        type: "confirm",
-        name: "prisma",
-        message: "Do you want to include Prisma ORM?",
-        default: true,
-        when: () => !options.prisma,
+        type: "list",
+        name: "orm",
+        message: "Do you want to use an ORM?",
+        choices: [
+          {
+            name: "Prisma",
+            value: "prisma",
+          },
+          {
+            name: "Drizzle",
+            value: "drizzle",
+          },
+          {
+            name: "None",
+            value: undefined,
+          },
+        ],
+        default: "prisma",
+        when: () => !options.orm,
       },
       {
         type: "list",
@@ -196,7 +206,7 @@ export const createApp = async (): Promise<void> => {
     const rhf = options.rhf || prompts.rhf;
     const tanstackQuery = options.tanstackQuery || prompts.tanstackQuery;
     const state = options.state || prompts.state;
-    const prisma = options.prisma || prompts.prisma;
+    const orm = options.orm || prompts.orm;
     const auth = options.auth || prompts.auth;
     const skipInstall = options.skipInstall || prompts.skipInstall;
 
@@ -205,7 +215,7 @@ export const createApp = async (): Promise<void> => {
       rhf,
       tanstackQuery,
       state,
-      prisma,
+      orm,
       auth,
     };
     const dirs: Dirs = {
@@ -263,7 +273,7 @@ export const createApp = async (): Promise<void> => {
 
     // Format files and run optional commands
     await formatFiles(destDir, packageManager);
-    prisma && (await setupPrisma(destDir, packageManager));
+    orm && (await setupORM(orm, destDir, packageManager));
 
     // Final success message
     console.log("\n" + chalk.bgCyan.black(" NEXT STEPS ") + "\n");

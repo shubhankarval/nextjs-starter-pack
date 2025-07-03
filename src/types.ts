@@ -3,7 +3,7 @@ export interface Options {
   rhf?: boolean;
   tanstackQuery?: boolean;
   state?: "zustand" | "jotai";
-  prisma?: boolean;
+  orm?: "prisma" | "drizzle";
   auth?: "authjs" | "clerk";
   skipInstall?: boolean;
 }
@@ -26,6 +26,7 @@ export interface FileMapping {
 
 export interface PackageJson {
   name: string;
+  scripts: Record<string, string>;
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
   prisma?: Record<string, string>;

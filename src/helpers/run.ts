@@ -84,35 +84,32 @@ export async function formatFiles(
   }
 }
 
-export async function setupPrisma(
+export async function setupORM(
+  orm: string,
   destDir: string,
   packageManager: PackageManager
 ): Promise<void> {
   console.log("");
-  const prismaSpinner = ora({
-    text: chalk.cyan("📁  Setting up Prisma ORM...\n"),
+  const ormSpinner = ora({
+    text: chalk.cyan(
+      `💾  Setting up ${orm === "prisma" ? "Prisma" : "Drizzle"} ORM...\n`
+    ),
     color: "cyan",
   }).start();
-  const pkg = packageManager === "npm" ? "npx" : packageManager;
 
   try {
     process.chdir(destDir);
 
     // Run commands
-    await execAsync(`${pkg} prisma generate`);
-    await execAsync(`${pkg} prisma db push`);
-    await execAsync(`${pkg} prisma db seed`);
+    if (orm === "prisma") {
+      await execAsync(`${packageManager} run db:generate`);
+    }
+    await execAsync(`${packageManager} run db:push`);
+    await execAsync(`${packageManager} run db:seed`);
 
-    prismaSpinner.succeed(chalk.green("Prisma setup completed successfully!"));
+    ormSpinner.succeed(chalk.green("ORM setup completed successfully!"));
   } catch (error) {
     console.log(error);
-    prismaSpinner.fail(chalk.red("Prisma setup failed"));
-    console.log(
-      chalk.yellow(`Please run the following commands in the project directory manually:
-        1. ${pkg} prisma generate
-        2. ${pkg} prisma db seed
-        3. ${pkg} prisma db seed
-      `)
-    );
+    ormSpinner.fail(chalk.red("ORM setup failed"));
   }
 }

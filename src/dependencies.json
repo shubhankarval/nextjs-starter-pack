@@ -55,6 +55,33 @@
       "devDeps": {
         "prisma": "^6.10.1",
         "tsx": "^4.20.3"
+      },
+      "scripts": {
+        "db:generate": "prisma generate",
+        "db:push": "prisma db push",
+        "db:seed": "tsx prisma/seed.ts",
+        "db:migrate": "prisma migrate dev",
+        "db:migrate:deploy": "prisma migrate deploy",
+        "db:migrate:status": "prisma migrate status",
+        "db:studio": "prisma studio"
+      }
+    },
+    "drizzle": {
+      "deps": {
+        "@libsql/client": "^0.15.9",
+        "drizzle-orm": "^0.44.2"
+      },
+      "devDeps": {
+        "dotenv": "^17.0.1",
+        "drizzle-kit": "^0.31.4",
+        "tsx": "^4.20.3"
+      },
+      "scripts": {
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "tsx src/db/migrate.ts",
+        "db:push": "drizzle-kit push",
+        "db:seed": "tsx src/db/seed.ts",
+        "db:studio": "drizzle-kit studio"
       }
     },
     "authjs": {

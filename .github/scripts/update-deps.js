@@ -33,7 +33,7 @@ async function main() {
 
   const optionalDeps = json.optionalDeps || {};
   for (const [key, value] of Object.entries(optionalDeps)) {
-    if (key === "prisma") {
+    if (key === "prisma" || key === "drizzle") {
       value.deps = await updateDepsObject(value.deps);
       value.devDeps = await updateDepsObject(value.devDeps);
     } else {

@@ -10,6 +10,10 @@ export const modifyFiles = async (options: Options, dirs: Dirs) => {
 
   const fileMap = [
     {
+      src: ".gitignore.hbs",
+      dest: ".gitignore",
+    },
+    {
       src: ".env.hbs",
       dest: ".env",
     },

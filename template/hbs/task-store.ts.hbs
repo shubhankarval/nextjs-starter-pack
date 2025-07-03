@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 
-{{#if prisma}}
-import { Task } from '@prisma/client';
+{{#if (eq orm "prisma")}}
+import type { Task } from '@prisma/client';
+{{else if (eq orm "drizzle")}}
+import type { Task } from '@/db/schema';
 {{else}}
-import { Task } from '@/types';
+import type { Task } from '@/types';
 {{/if}}
 import {
   getAllTasks,

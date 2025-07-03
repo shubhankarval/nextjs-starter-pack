@@ -57,34 +57,64 @@ export async function addFiles(options: Options, dirs: Dirs) {
     await fs.ensureDir(path.join(tempDir, "src/context"));
   }
 
-  if (options.prisma) {
-    const prismaDir = path.join(optionalDir, "prisma");
-
-    fileMap.push(
-      {
-        src: path.join(prismaDir, ".gitignore"),
-        dest: path.join(tempDir, ".gitignore"),
-      },
-      {
-        src: path.join(prismaDir, "schema.prisma"),
-        dest: path.join(tempDir, "prisma/schema.prisma"),
-      },
-      {
-        src: path.join(prismaDir, "seed.ts"),
-        dest: path.join(tempDir, "prisma/seed.ts"),
-      },
-      {
-        src: path.join(prismaDir, "prisma.ts"),
-        dest: path.join(tempDir, "src/lib/prisma.ts"),
-      },
-      {
-        src: path.join(prismaDir, "tasks.ts"),
-        dest: path.join(tempDir, "src/actions/tasks.ts"),
-      }
-    );
-
-    await fs.ensureDir(path.join(tempDir, "prisma"));
+  if (options.orm) {
     await fs.remove(path.join(tempDir, "src/types.ts"));
+
+    if (options.orm === "prisma") {
+      const prismaDir = path.join(optionalDir, "prisma");
+
+      fileMap.push(
+        {
+          src: path.join(prismaDir, "schema.prisma"),
+          dest: path.join(tempDir, "prisma/schema.prisma"),
+        },
+        {
+          src: path.join(prismaDir, "seed.ts"),
+          dest: path.join(tempDir, "prisma/seed.ts"),
+        },
+        {
+          src: path.join(prismaDir, "prisma.ts"),
+          dest: path.join(tempDir, "src/lib/prisma.ts"),
+        },
+        {
+          src: path.join(prismaDir, "tasks.ts"),
+          dest: path.join(tempDir, "src/actions/tasks.ts"),
+        }
+      );
+
+      await fs.ensureDir(path.join(tempDir, "prisma"));
+    } else if (options.orm === "drizzle") {
+      const drizzleDir = path.join(optionalDir, "drizzle");
+
+      fileMap.push(
+        {
+          src: path.join(drizzleDir, "drizzle.config.ts"),
+          dest: path.join(tempDir, "drizzle.config.ts"),
+        },
+        {
+          src: path.join(drizzleDir, "schema.ts"),
+          dest: path.join(tempDir, "src/db/schema.ts"),
+        },
+        {
+          src: path.join(drizzleDir, "migrate.ts"),
+          dest: path.join(tempDir, "src/db/migrate.ts"),
+        },
+        {
+          src: path.join(drizzleDir, "seed.ts"),
+          dest: path.join(tempDir, "src/db/seed.ts"),
+        },
+        {
+          src: path.join(drizzleDir, "index.ts"),
+          dest: path.join(tempDir, "src/db/index.ts"),
+        },
+        {
+          src: path.join(drizzleDir, "tasks.ts"),
+          dest: path.join(tempDir, "src/actions/tasks.ts"),
+        }
+      );
+
+      await fs.ensureDir(path.join(tempDir, "src/db"));
+    }
   }
 
   if (options.auth) {
