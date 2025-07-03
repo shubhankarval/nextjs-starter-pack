@@ -66,6 +66,21 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 | `-a, --auth <library>`  | Authentication with `authjs` or `clerk`    |
 | `-i, --skip-install`    | Skip installing dependencies               |
 
+## 📁 Project Structure
+
+```py
+my-app/
+├── src/
+│   ├── app/           # App router (layout, routes, API)
+│   ├── components/    # Reusable UI (Shadcn UI)
+│   ├── actions/       # Server actions
+│   ├── store/         # Zustand/Jotai
+│   ├── lib/           # Helpers & utils
+│   └── context/       # Context providers
+├── prisma/            # DB schema & seeding
+└── config + setup     # ESLint, Prettier, TypeScript, etc.
+```
+
 ## 🛣️ Roadmap
 
 - [ ] 📁 Drizzle ORM
@@ -79,21 +94,6 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 - [ ] 🔄 CI/CD
 - [ ] 📧 Email templates and sending capabilities
 
-## 📁 Project Structure
-
-```py
-my-app/
-├── prisma/            # DB schema & seeding
-├── src/
-│   ├── app/           # App router (layout, routes, API)
-│   ├── components/    # Reusable UI (Shadcn UI)
-│   ├── actions/       # Server actions
-│   ├── store/         # Zustand/Jotai
-│   ├── lib/           # Helpers & utils
-│   └── context/       # Context providers
-└── config + setup     # ESLint, Prettier, TypeScript, etc.
-```
-
 ## 👥 Contributing
 
 Contributions are welcome! Here's how you can help:
@@ -104,6 +104,10 @@ Contributions are welcome! Here's how you can help:
 4. Open a Pull Request to `develop`
 
 Please make sure to follow the existing code style of the project.
+
+### Development & Testing
+
+For local development and testing, see the [`nextjs-starter-app`](https://github.com/shubhankarval/nextjs-starter-app) repository - a reference implementation showcasing the output of this starter pack.
 <br/>
 <br/>
 

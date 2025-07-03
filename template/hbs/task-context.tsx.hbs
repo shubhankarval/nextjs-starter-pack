@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-{{IMPORT}}
+{{#if prisma}}
+import { Task } from '@prisma/client';
+{{else}}
+import { Task } from '@/types';
+{{/if}}
 import {
   getAllTasks,
   deleteTaskFromDB,
@@ -13,12 +17,16 @@ type Filter = 'all' | 'active' | 'done';
 interface TaskContextType {
   tasks: Task[];
   filteredTasks: Task[];
-  newTask: string;
   filter: Filter;
   loading: boolean;
-  setNewTask: (val: string) => void;
-  setFilter: (val: Filter) => void;
+  {{#if rhf}}
+  addTask: (val: string) => void;
+  {{else}}
   addTask: () => void;
+  newTask: string;
+  setNewTask: (val: string) => void;
+  {{/if}}
+  setFilter: (val: Filter) => void;
   deleteTask: (id: string) => void;
   toggleComplete: (id: string) => void;
 }
@@ -29,7 +37,9 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  {{#unless rhf}}
   const [newTask, setNewTask] = useState('');
+  {{/unless}}
   const [filter, setFilter] = useState<Filter>('all');
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -40,6 +50,19 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     })();
   }, []);
 
+  {{#if rhf}}
+  const addTask = async (val: string) => {
+    if (val.trim()) {
+      const newTaskObj: Task = {
+        id: crypto.randomUUID(),
+        text: val,
+        completed: false,
+      };
+      setTasks((prev) => [...prev, newTaskObj]);
+      await addTaskToDB(newTaskObj);
+    }
+  };
+  {{else}}
   const addTask = async () => {
     if (newTask.trim()) {
       const newTaskObj: Task = {
@@ -52,6 +75,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
       setNewTask('');
     }
   };
+  {{/if}}
 
   const deleteTask = async (id: string) => {
     setTasks((prev) => prev.filter((task) => task.id !== id));
@@ -75,13 +99,15 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <TaskContext.Provider
-      value={{
+      value=\{{
         tasks,
         filteredTasks,
-        newTask,
         filter,
         loading,
+        {{#unless rhf}}
+        newTask,
         setNewTask,
+        {{/unless}}
         setFilter,
         addTask,
         deleteTask,

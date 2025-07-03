@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 
-{{IMPORT}}
+{{#if prisma}}
+import { Task } from '@prisma/client';
+{{else}}
+import { Task } from '@/types';
+{{/if}}
 import {
   getAllTasks,
   deleteTaskFromDB,
@@ -12,17 +16,21 @@ type Filter = 'all' | 'active' | 'done';
 
 interface TaskState {
   tasks: Task[];
-  newTask: string;
+  {{#unless rhf}}newTask: string;{{/unless}}
   filter: Filter;
   loading: boolean;
 }
 
 interface TaskActions {
-  setNewTask: (val: string) => void;
   setFilter: (val: Filter) => void;
   filterTasks: () => Task[];
   fetchTasks: () => Promise<void>;
+  {{#if rhf}}
+  addTask: (newTaskName: string) => Promise<void>;
+  {{else}}
   addTask: () => Promise<void>;
+  setNewTask: (val: string) => void;
+  {{/if}}
   deleteTask: (id: string) => Promise<void>;
   toggleComplete: (id: string) => Promise<void>;
 }
@@ -30,7 +38,7 @@ interface TaskActions {
 const useTaskStore = create<TaskState & TaskActions>()((set, get) => ({
   // State
   tasks: [],
-  newTask: '',
+  {{#unless rhf}}newTask: '',{{/unless}}
   filter: 'all',
   loading: true,
 
@@ -42,7 +50,7 @@ const useTaskStore = create<TaskState & TaskActions>()((set, get) => ({
     return tasks;
   },
 
-  setNewTask: (val) => set({ newTask: val }),
+  {{#unless rhf}}setNewTask: (val) => set({ newTask: val }),{{/unless}}
   setFilter: (val) => set({ filter: val }),
 
   fetchTasks: async () => {
@@ -50,6 +58,21 @@ const useTaskStore = create<TaskState & TaskActions>()((set, get) => ({
     set({ tasks, loading: false });
   },
 
+  {{#if rhf}}
+    addTask: async (newTaskName) => {
+    const { tasks } = get();
+    if (newTaskName.trim()) {
+      const newTaskObj: Task = {
+        id: crypto.randomUUID(),
+        text: newTaskName,
+        completed: false,
+      };
+
+      set({ tasks: [...tasks, newTaskObj] });
+      await addTaskToDB(newTaskObj);
+    }
+  },
+  {{else}}
   addTask: async () => {
     const { newTask, tasks } = get();
     if (newTask.trim()) {
@@ -63,6 +86,7 @@ const useTaskStore = create<TaskState & TaskActions>()((set, get) => ({
       await addTaskToDB(newTaskObj);
     }
   },
+  {{/if}}
 
   deleteTask: async (id) => {
     set((state) => ({

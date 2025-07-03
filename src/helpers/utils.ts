@@ -22,20 +22,6 @@ export const getPackageManager = (): PackageManager => {
   return packageManager;
 };
 
-export const replacePlaceholdersInFile = async (
-  filePath: string,
-  replacements: Record<string, string>
-) => {
-  let content = await fs.readFile(filePath, "utf8");
-
-  for (const [placeholder, value] of Object.entries(replacements)) {
-    const regex = new RegExp(`{{${placeholder}}}`, "g");
-    content = content.replace(regex, value);
-  }
-
-  await fs.writeFile(filePath, content, "utf8");
-};
-
 export async function swapPackageJsonFiles(dir: string): Promise<void> {
   const pkg = path.join(dir, "package.json");
   const _pkg = path.join(dir, "_package.json");

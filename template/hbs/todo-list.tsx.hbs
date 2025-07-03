@@ -1,0 +1,170 @@
+'use client';
+
+{{#if (eq state "zustand")}}
+import { useEffect } from 'react';
+{{else if (eq state "jotai")}}
+import { useEffect } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+{{/if}}
+{{#if rhf}}
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+{{/if}}
+import { Plus } from 'lucide-react';
+
+{{#if (eq state "zustand")}}
+import useTaskStore from '@store/task-store';
+{{else if (eq state "jotai")}}
+import { 
+  fetchTasksAtom, 
+  filterAtom, 
+  addTaskAtom,
+  {{#unless rhf}}newTaskAtom,{{/unless}} 
+} from '@store/task-atoms';
+{{else}}
+import { useTaskContext } from '@context/task-context';
+{{/if}}
+{{#if darkMode}}
+import { ThemeSwitch } from '@components/theme-switch';
+{{/if}}
+{{#if rhf}}
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormMessage,
+} from '@components/ui/form';
+{{/if}}
+import { Button } from '@components/ui/button';
+import { Input } from '@components/ui/input';
+import { Greeting } from '@components/greeting';
+import { Tasks } from '@components/tasks';
+
+{{#if rhf}}
+const formSchema = z.object({
+  taskName: z.string().min(2, { message: 'Task name must be at least 2 characters.' }),
+});
+{{/if}}
+
+export function TodoList() {
+  {{#if (eq state "zustand")}}
+  const { fetchTasks, addTask, filter, setFilter{{#unless rhf}}, newTask, setNewTask{{/unless}} } =
+    useTaskStore();
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+  {{else if (eq state "jotai")}}
+  const fetchTasks = useSetAtom(fetchTasksAtom);
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  const [filter, setFilter] = useAtom(filterAtom);
+  const addTask = useSetAtom(addTaskAtom);
+  {{#unless rhf}}
+  const [newTask, setNewTask] = useAtom(newTaskAtom);
+  {{/unless}}
+  {{else}}
+  const { addTask, filter, setFilter{{#unless rhf}}, newTask, setNewTask{{/unless}} } =
+    useTaskContext();
+  {{/if}}
+
+  {{#if rhf}}
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      taskName: '',
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    addTask(values.taskName);
+    form.reset();
+  }
+  {{/if}}
+
+  return (
+    <div className="mx-auto flex w-full max-w-md flex-col p-6">
+      <div className="mb-6 flex items-center gap-2">
+        {{#if darkMode}}<ThemeSwitch />{{/if}}
+        <Greeting />
+      </div>
+
+      {{#if rhf}}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="mb-6 flex space-x-2"
+        >
+          <FormField
+            control={form.control}
+            name="taskName"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Add a new task..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button size="icon" aria-label="Add task" type="submit">
+            <Plus className="h-4 w-4" />
+          </Button>
+        </form>
+      </Form>
+      {{else}}
+      <div className="mb-6 flex space-x-2">
+        <Input
+          type="text"
+          placeholder="Add a new task..."
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') addTask();
+          }}
+          className="flex-1"
+        />
+        <Button size="icon" aria-label="Add task" onClick={addTask}>
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+      {{/if}}
+
+      <div className="mb-4 flex space-x-2">
+        <Button
+          variant={filter === 'all' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilter('all')}
+          className="flex-1"
+        >
+          All
+        </Button>
+        <Button
+          variant={filter === 'active' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilter('active')}
+          className="flex-1"
+        >
+          Active
+        </Button>
+        <Button
+          variant={filter === 'done' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setFilter('done')}
+          className="flex-1"
+        >
+          Done
+        </Button>
+      </div>
+      <Tasks />
+    </div>
+  );
+}

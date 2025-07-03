@@ -2,11 +2,11 @@ import fs from "fs-extra";
 import path from "path";
 
 import deps from "../dependencies.json" with { type: "json" };
-import type { ScaffoldContext, PackageJson } from "../types.js";
+import type { Options, Dirs, PackageJson } from "../types.js";
 
 type OptionKey = {
   key: keyof typeof deps.optionalDeps;
-  selected: (options: ScaffoldContext) => boolean | undefined;
+  selected: (options: Options) => boolean | undefined;
 };
 
 const optionKeys: OptionKey[] = [
@@ -20,13 +20,13 @@ const optionKeys: OptionKey[] = [
   { key: "clerk", selected: (options) => options.auth === "clerk" },
 ];
 
-export const addDependencies = (options: ScaffoldContext, pkg: PackageJson) => {
+export const addDependencies = (options: Options, pkg: PackageJson) => {
   let dependencies = { ...deps.dependencies };
   let devDependencies = { ...deps.devDependencies };
 
   for (const { key, selected } of optionKeys) {
     if (selected(options) && deps.optionalDeps[key]) {
-      // Special handling for prisma (has deps/devDeps/config)
+      // Special handling for prisma (has deps/devDeps)
       if (key === "prisma") {
         Object.assign(dependencies, deps.optionalDeps.prisma.deps);
         Object.assign(devDependencies, deps.optionalDeps.prisma.devDeps);
@@ -45,12 +45,11 @@ export const addDependencies = (options: ScaffoldContext, pkg: PackageJson) => {
 
 // For skip install flag - only add deps needed for running commands
 export const addRunDependencies = async (
-  options: ScaffoldContext,
-  mainDir: string,
-  tempDir: string
+  options: Options,
+  dirs: Dirs,
 ) => {
   const _pkg = (await fs.readJson(
-    path.join(mainDir, "_package.json")
+    path.join(dirs.mainDir, "_package.json")
   )) as PackageJson;
 
   if (options.prisma) {
@@ -59,7 +58,7 @@ export const addRunDependencies = async (
     _pkg.prisma = { seed: "tsx prisma/seed.ts" };
   }
 
-  await fs.writeJson(path.join(tempDir, "_package.json"), _pkg, {
+  await fs.writeJson(path.join(dirs.tempDir, "_package.json"), _pkg, {
     spaces: 2,
   });
 };

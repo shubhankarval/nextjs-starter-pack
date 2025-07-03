@@ -10,15 +10,10 @@ import figlet from "figlet";
 import chalk from "chalk";
 import { mind } from "gradient-string";
 
-import type {
-  Options,
-  Prompts,
-  PackageJson,
-  ScaffoldContext,
-} from "./types.js";
+import type { Options, Prompts, PackageJson, Dirs } from "./types.js";
 import { addDependencies, addRunDependencies } from "./helpers/deps.js";
 import { addFiles } from "./helpers/addFiles.js";
-import { modifyFiles } from "./helpers/modifyFiles/index.js";
+import { modifyFiles } from "./helpers/modifyFiles.js";
 import {
   installDependencies,
   formatFiles,
@@ -32,6 +27,7 @@ const __dirname = path.dirname(__filename);
 
 const mainDir = path.join(__dirname, "../template/main");
 const optionalDir = path.join(__dirname, "../template/optional");
+const hbsDir = path.join(__dirname, "../template/hbs");
 const tempDir = path.join(os.tmpdir(), `temp-${nanoid()}`);
 
 const program = new Command();
@@ -204,15 +200,19 @@ export const createApp = async (): Promise<void> => {
     const auth = options.auth || prompts.auth;
     const skipInstall = options.skipInstall || prompts.skipInstall;
 
-    const params: ScaffoldContext = {
+    const config: Options = {
       darkMode,
       rhf,
       tanstackQuery,
       state,
       prisma,
       auth,
+    };
+    const dirs: Dirs = {
+      mainDir,
       optionalDir,
       tempDir,
+      hbsDir,
     };
 
     // Copy from main to temp directory
@@ -220,10 +220,10 @@ export const createApp = async (): Promise<void> => {
 
     // Add dependencies based on user input
     if (skipInstall) {
-      await addRunDependencies(params, mainDir, tempDir);
+      await addRunDependencies(config, dirs);
       await swapPackageJsonFiles(tempDir);
     } else {
-      addDependencies(params, pkg);
+      addDependencies(config, pkg);
       await fs.writeJson(path.join(tempDir, "package.json"), pkg, {
         spaces: 2,
       });
@@ -231,8 +231,8 @@ export const createApp = async (): Promise<void> => {
     }
 
     // Add/overwrite/modify files based on user input
-    await addFiles(params);
-    await modifyFiles(params);
+    await addFiles(config, dirs);
+    await modifyFiles(config, dirs);
 
     // Move files from temp to destination directory
     await fs.move(tempDir, destDir);
@@ -251,7 +251,7 @@ export const createApp = async (): Promise<void> => {
       await swapPackageJsonFiles(destDir);
       await fs.remove(path.join(destDir, "_package.json"));
 
-      addDependencies(params, pkg);
+      addDependencies(config, pkg);
       await fs.writeJson(path.join(destDir, "package.json"), pkg, {
         spaces: 2,
       });

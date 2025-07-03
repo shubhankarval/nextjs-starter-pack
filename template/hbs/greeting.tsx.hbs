@@ -1,8 +1,13 @@
-"use client";
+// client-side data fetching
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
+{{#if (eq auth 'authjs')}}
 import { SessionProvider, useSession } from "next-auth/react";
-import he from "he";
+{{else if (eq auth 'clerk')}}
+import { useUser } from '@clerk/nextjs';
+{{/if}}
+import he from 'he';
 
 type HelloResponse = {
   code: string;
@@ -13,31 +18,61 @@ type IPResponse = {
   ip: string;
 };
 
+{{#if (eq auth 'authjs')}}
 function RenderGreeting() {
+{{else}}
+export function Greeting() {
+{{/if}}
   const [greeting, setGreeting] = useState<string | null>(null);
+  {{#if (eq auth 'authjs')}}
   const { data: session } = useSession();
+  {{else if (eq auth 'clerk')}}
+  const { user } = useUser();
+  {{/if}}
 
   useEffect(() => {
     const fetchGreeting = async () => {
+      {{#if (eq auth 'authjs')}}
       let name = "";
       if (session?.user?.name) {
         name = " " + session.user.name.split(" ")[0];
       }
+      {{else if (eq auth 'clerk')}}
+      let name = "";
+      if (user?.firstName) {
+        name = " " + user.firstName;
+      }
+      {{/if}}
 
       try {
         const params = new URLSearchParams();
         const langCode = navigator.language;
 
         if (langCode) {
-          params.set("lang", langCode.startsWith("en") ? "en" : langCode);
+          params.set('lang', langCode.startsWith('en') ? 'en' : langCode);
         } else {
-          const ipRes = await fetch("https://get.geojs.io/v1/ip.json");
+          const ipRes = await fetch('https://get.geojs.io/v1/ip.json');
           const ipData: IPResponse = await ipRes.json();
           if (ipData.ip) {
-            params.set("ip", ipData.ip);
+            params.set('ip', ipData.ip);
           }
         }
 
+      {{#if (not auth)}}
+        if (params.size) {
+          const res = await fetch(
+            `https://hellosalut.stefanbohacek.dev/?${params}`,
+          );
+          const data: HelloResponse = await res.json();
+          setGreeting(he.decode(data.hello) + '!');
+        } else {
+          setGreeting('Hello!');
+        }
+      } catch (error) {
+        console.error('Failed to fetch greeting:', error);
+        setGreeting('Hello!');
+      }
+      {{else}}
         if (params.size) {
           const res = await fetch(
             `https://hellosalut.stefanbohacek.dev/?${params}`
@@ -51,11 +86,12 @@ function RenderGreeting() {
         console.error("Failed to fetch greeting:", error);
         setGreeting("Hello" + name + "!");
       }
+      {{/if}}
     };
 
     fetchGreeting();
-  }, [session]);
-
+  }, [{{#if (eq auth 'authjs')}}session{{else if (eq auth 'clerk')}}user{{/if}}]);
+  
   return (
     <h1 className="text-foreground text-2xl font-bold">
       {greeting?.length && greeting}
@@ -63,6 +99,7 @@ function RenderGreeting() {
   );
 }
 
+{{#if (eq auth 'authjs')}}
 export function Greeting() {
   return (
     <SessionProvider>
@@ -70,3 +107,4 @@ export function Greeting() {
     </SessionProvider>
   );
 }
+{{/if}}

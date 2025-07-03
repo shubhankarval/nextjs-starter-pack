@@ -1,14 +1,40 @@
 'use client';
-{{JOTAI_IMPORT}}
+
+{{#if (eq state "jotai")}}
+import { useAtomValue, useSetAtom } from 'jotai';
+{{/if}}
 import { Trash2, Loader2 } from 'lucide-react';
 
 import { Button } from '@components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-{{IMPORT}}
+import { Checkbox } from '@components/ui/checkbox';
+{{#if (eq state "zustand")}}
+import useTaskStore from '@store/task-store';
+{{else if (eq state "jotai")}}
+import {
+  filteredTasksAtom,
+  filterAtom,
+  loadingAtom,
+  deleteTaskAtom,
+  toggleCompleteAtom,
+} from '@store/task-atoms';
+{{else}}
+import { useTaskContext } from '@context/task-context';
+{{/if}}
 import { cn } from '@lib/utils';
 
 export function Tasks() {
-  {{TASK_STATE}}
+  {{#if (eq state "zustand")}}
+  const { filter, loading, filterTasks, toggleComplete, deleteTask } = useTaskStore();
+  const filteredTasks = filterTasks();
+  {{else if (eq state "jotai")}}
+  const filteredTasks = useAtomValue(filteredTasksAtom);
+  const filter = useAtomValue(filterAtom);
+  const loading = useAtomValue(loadingAtom);
+  const deleteTask = useSetAtom(deleteTaskAtom);
+  const toggleComplete = useSetAtom(toggleCompleteAtom);
+  {{else}}
+  const { filteredTasks, filter, loading, toggleComplete, deleteTask } = useTaskContext();
+  {{/if}}
 
   return (
     <div className="flex-1 space-y-2 overflow-y-auto pr-1">

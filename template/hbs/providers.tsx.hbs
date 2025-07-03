@@ -1,0 +1,45 @@
+'use client';
+
+{{#if tanstackQuery}}
+import { QueryClientProvider } from "@tanstack/react-query";
+import { getQueryClient } from "@lib/get-query-client";
+{{/if}}
+{{#if darkMode}}
+import { ThemeProvider } from "next-themes"; 
+{{/if}}
+{{#if (not state)}}
+import { TaskProvider } from "@context/task-context";
+{{/if}}
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  {{#if tanstackQuery}}
+  const queryClient = getQueryClient();
+  {{/if}}
+
+  return (
+    {{#if tanstackQuery}}
+    <QueryClientProvider client={queryClient}>
+    {{/if}}
+    {{#if darkMode}}
+      <ThemeProvider
+      attribute="data-theme"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      >
+    {{/if}}
+    {{#if (not state)}}
+        <TaskProvider>
+    {{/if}}
+          {children}
+    {{#if (not state)}}
+        </TaskProvider>
+    {{/if}}
+    {{#if darkMode}}
+      </ThemeProvider>
+    {{/if}}
+    {{#if tanstackQuery}}
+    </QueryClientProvider>
+    {{/if}}
+  );
+}

@@ -21,7 +21,6 @@ logs/
 
 # Env files
 .env
-.env.*
 
 # IDEs/editors
 .vscode/
