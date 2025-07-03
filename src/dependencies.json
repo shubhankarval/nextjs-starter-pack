@@ -58,7 +58,7 @@
       }
     },
     "authjs": {
-      "next-auth": "^4.24.11"
+      "next-auth": "^5.0.0-beta.28"
     },
     "clerk": {
       "@clerk/nextjs": "^6.23.2"
