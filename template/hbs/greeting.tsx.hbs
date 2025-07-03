@@ -1,3 +1,4 @@
+// client-side data fetching
 'use client';
 
 import { useEffect, useState } from 'react';
