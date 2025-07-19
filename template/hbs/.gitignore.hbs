@@ -41,5 +41,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#prisma
+{{#if (eq orm "prisma")}}
+# prisma
 /prisma/dev.db
+{{else if (eq orm "drizzle")}}
+# drizzle
+dev.db
+{{/if}}

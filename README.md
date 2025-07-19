@@ -7,12 +7,13 @@
   <img src="https://img.shields.io/badge/Tailwind-4.x-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind" />
   <br />
   <img src="https://img.shields.io/badge/TanStack_Query-5.x-FF4154?style=for-the-badge&logo=reactquery" alt="TanStack Query" />
+  <img src="https://img.shields.io/badge/Prisma-6.x-0a3953?style=for-the-badge&logo=prisma" alt="Prisma" />
+  <img src="https://img.shields.io/badge/Drizzle-0.x-c6f853?style=for-the-badge&logo=drizzle" alt="Drizzle" />
+  <img src="https://img.shields.io/badge/Auth.js-5.x-fb7d05?style=for-the-badge" alt="Auth.js" />
+  <img src="https://img.shields.io/badge/Clerk-6.x-aa9dec?style=for-the-badge&logo=clerk" alt="Clerk" />
+  <br />
   <img src="https://img.shields.io/badge/React_Hook_Form-7.x-EC5990?style=for-the-badge&logo=react-hook-form" alt="React Hook Form" />
   <img src="https://img.shields.io/badge/Zod-3.x-3068B7?style=for-the-badge&logo=zod" alt="Zod" />
-  <img src="https://img.shields.io/badge/Auth.js-5.x-fb7d05?style=for-the-badge" alt="Auth.js" />
-  <br />
-  <img src="https://img.shields.io/badge/Clerk-6.x-aa9dec?style=for-the-badge&logo=clerk" alt="Clerk" />
-  <img src="https://img.shields.io/badge/Prisma-6.7-0a3953?style=for-the-badge&logo=prisma" alt="Prisma" />
   <img src="https://img.shields.io/badge/Zustand-5.x-433e38?style=for-the-badge" alt="Zustand" />
   <img src="https://img.shields.io/badge/Jotai-2.x-f2f2f2?style=for-the-badge" alt="Jotai" />
 </div>
@@ -41,15 +42,15 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 - ⚛️ **React 19**
 - 🔷 **TypeScript**
 - 🎨 **Tailwind CSS v4**
+- 💾 **Prisma/Drizzle ORM**
+- 🔐 **Auth.js / Clerk**
+- 🛠️ **ESLint and Prettier**
 - 🌓 **Dark Mode (next-themes)**
 - 🧩 **Shadcn UI**
-- 🛠️ **ESLint and Prettier**
 - 📊 **TanStack Query**
 - 📋 **React Hook Form**
 - 🛡️ **Zod Validation**
 - 🔄 **Zustand / Jotai**
-- 📁 **Prisma ORM**
-- 🔐 **Auth.js / Clerk**
 - 🖼️ **Lucide Icons**
 - 📦 **Import Aliases**
 
@@ -62,7 +63,7 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 | `-r, --rhf`             | React Hook Form with Zod                   |
 | `-q, --tanstack-query`  | TanStack Query                             |
 | `-s, --state <library>` | State management with `zustand` or `jotai` |
-| `-p, --prisma`          | Prisma ORM                                 |
+| `-o, --orm <library>`   | Querying with ORM (`prisma` or `drizzle`)  |
 | `-a, --auth <library>`  | Authentication with `authjs` or `clerk`    |
 | `-i, --skip-install`    | Skip installing dependencies               |
 
@@ -78,20 +79,20 @@ my-app/
 │   ├── lib/           # Helpers & utils
 │   └── context/       # Context providers
 ├── prisma/            # DB schema & seeding
+├── drizzle/           # DB migrations
 └── config + setup     # ESLint, Prettier, TypeScript, etc.
 ```
 
 ## 🛣️ Roadmap
 
-- [ ] 📁 Drizzle ORM
-- [ ] 📊 Analytics
+- [ ] 🔄 CI/CD (deployment with vercel)
 - [ ] 🧪 Testing - Jest, RTL, and Cypress support
 - [ ] 💳 Stripe integration
 - [ ] 🌐 i18n
+- [ ] 📊 Analytics
 - [ ] 🔒 Security headers and best practices
 - [ ] 📱 Progressive Web App capabilities
 - [ ] 🎭 Storybook - Component documentation
-- [ ] 🔄 CI/CD
 - [ ] 📧 Email templates and sending capabilities
 
 ## 👥 Contributing
