@@ -36,25 +36,7 @@ Or with customization options:
 npx nextjs-starter-pack my-app --dark-mode --state zustand
 ```
 
-## ✨ Features
-
-- ⚡️ **Next.js 15 (App Router)**
-- ⚛️ **React 19**
-- 🔷 **TypeScript**
-- 🎨 **Tailwind CSS v4**
-- 💾 **Prisma/Drizzle ORM**
-- 🔐 **Auth.js / Clerk**
-- 🛠️ **ESLint and Prettier**
-- 🌓 **Dark Mode (next-themes)**
-- 🧩 **Shadcn UI**
-- 📊 **TanStack Query**
-- 📋 **React Hook Form**
-- 🛡️ **Zod Validation**
-- 🔄 **Zustand / Jotai**
-- 🖼️ **Lucide Icons**
-- 📦 **Import Aliases**
-
-## 🛠️ CLI Options
+## CLI Options
 
 | Option                  | Description                                |
 | ----------------------- | ------------------------------------------ |
@@ -67,7 +49,7 @@ npx nextjs-starter-pack my-app --dark-mode --state zustand
 | `-a, --auth <library>`  | Authentication with `authjs` or `clerk`    |
 | `-i, --skip-install`    | Skip installing dependencies               |
 
-## 📁 Project Structure
+## Project Structure
 
 ```py
 my-app/
@@ -83,19 +65,19 @@ my-app/
 └── config + setup     # ESLint, Prettier, TypeScript, etc.
 ```
 
-## 🛣️ Roadmap
+## Roadmap
 
-- [ ] 🔄 CI/CD (deployment with vercel)
-- [ ] 🧪 Testing - Jest, RTL, and Cypress support
-- [ ] 💳 Stripe integration
-- [ ] 🌐 i18n
-- [ ] 📊 Analytics
-- [ ] 🔒 Security headers and best practices
-- [ ] 📱 Progressive Web App capabilities
-- [ ] 🎭 Storybook - Component documentation
-- [ ] 📧 Email templates and sending capabilities
+- [ ] CI/CD (deployment with vercel)
+- [ ] Testing - Jest, RTL, and Cypress support
+- [ ] Stripe integration
+- [ ] i18n
+- [ ] Analytics
+- [ ] Security headers and best practices
+- [ ] Progressive Web App capabilities
+- [ ] Storybook - Component documentation
+- [ ] Email templates and sending capabilities
 
-## 👥 Contributing
+## Contributing
 
 Contributions are welcome! Here's how you can help:
 
